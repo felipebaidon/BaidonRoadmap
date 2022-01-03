@@ -9,13 +9,13 @@
  *
  *****************************************************************************/
 /**
- * @file <Add File Name> 
- * @brief <Add Brief Description Here >
+ * @file stats.c 
+ * @brief This file contains the function definitions to perform stadistical     *         analysis on a given array 
  *
  * <Add Extended Description Here>
  *
- * @author <Add FirsName LastName>
- * @date <Add date >
+ * @author Felipe Baidon
+ * @date 03 Jan 2022
  *
  */
 
@@ -37,7 +37,33 @@ void main() {
 
   /* Other Variable Declarations Go Here */
   /* Statistics and Printing Functions Go Here */
-
 }
 
 /* Add other Implementation File Code Here */
+unsigned char find_mean(const unsigned char *data, int arraySize)
+{
+}
+
+unsigned char find_maximum(const unsigned char *data, int arraySize)
+{
+}
+
+unsigned char find_minimum(const unsigned char *data, int arraySize)
+{
+}
+
+unsigned char* sort_array(unsigned char *data, int arraySize)
+{
+}
+
+unsigned char find_median(unsigned char *data, int arraySize)
+{
+}
+
+void print_statistics( unsigned char *data, int arraySize)
+{
+}
+
+void print_array(const unsigned char *data, int arraySize)
+{
+}
