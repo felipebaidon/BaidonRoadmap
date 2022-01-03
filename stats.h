@@ -27,6 +27,8 @@
 /**
  * @brief This function prints the stadistical data of a received array
  *
+ * This function delegates the calculation of minimum and maximum values, me * mean and median and prints them afterwards.
+ *
  * @param data An array that will be analyzed
  * @param arraySize The size of the array
  *
@@ -91,6 +93,9 @@ unsigned char find_minimum(const unsigned char *data, int arraySize);
 
 /**
  * @brief This function sorts the array
+ *
+ * This functions modified the array passed as a reference to sort its
+ * its contents from maximum to minimum
  *
  * @param data The array to be sorted 
  * @param arraySize The size of the array to be sorted 
