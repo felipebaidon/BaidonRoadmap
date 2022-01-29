@@ -27,30 +27,6 @@
 /* Size of the Data Set */
 #define SIZE (40)
 
-void main() {
-
-  unsigned char test[SIZE] = { 34, 201, 190, 154,   8, 194,   2,   6,
-                              114, 88,   45,  76, 123,  87,  25,  23,
-                              200, 122, 150, 90,   92,  87, 177, 244,
-                              201,   6,  12,  60,   8,   2,   5,  67,
-                                7,  87, 250, 230,  99,   3, 100,  90};
-
-  /* Other Variable Declarations Go Here */
-  /* Statistics and Printing Functions Go Here */
-  
-  printf("Printing Statistics\r\n");
-  print_statistics(&test[0], SIZE);
-  
-  printf("Printing Array\r\n");
-  print_array(&test[0], SIZE);
-
-  printf("Sorting array\r\n");
-  sort_array(&test[0], SIZE);
-
-  printf("Printing Array\r\n");
-  print_array(&test[0], SIZE);
-}
-
 /* Add other Implementation File Code Here */
 unsigned char find_mean(const unsigned char *data, int arraySize)
 {
@@ -146,8 +122,10 @@ void print_statistics( unsigned char *data, int arraySize)
 
 void print_array(const unsigned char *data, int arraySize)
 {
+    #ifdef VERBOSE
     for(int i= 0; i < arraySize; i++)
     {
         printf("Element %d of Array: %d\r\n", i, data[i]);
     }
+    #endif
 }
