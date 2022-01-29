@@ -79,9 +79,9 @@ compile-all:
 .PHONY: Build
 Build: compile-all
 ifeq  ($(PLATFORM),MSP432)
-	$(CC) $(OBJS) $(SPECS) -o main.out -Wl,$(LDFLAGS)$(LINKER_FILE)
+	$(CC) $(OBJS) $(SPECS) -o C1M2.out -Wl,$(LDFLAGS)$(LINKER_FILE)
 else ifeq ($(PLATFORM),HOST)
-	$(CC) $(OBJS) -o main.out
+	$(CC) $(OBJS) -o C1M2.out
 endif
 
 .PHONY: clean
