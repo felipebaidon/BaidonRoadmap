@@ -21,8 +21,9 @@
 
 
 
-#include <stdio.h>
+
 #include "stats.h"
+#include "platform.h"
 
 /* Size of the Data Set */
 #define SIZE (40)
@@ -116,7 +117,7 @@ void print_statistics( unsigned char *data, int arraySize)
     unsigned char mean = find_mean(data, arraySize);
     unsigned char median = find_median(data, arraySize);
 
-    printf( " Minimum value of the array: %d\r\n Maximum value of the array: %d\r\n Mean value of the array: %d\r\n Median value of the array: %d\r\n", minimum, maximum, mean, median);
+    PRINTF( " Minimum value of the array: %d\r\n Maximum value of the array: %d\r\n Mean value of the array: %d\r\n Median value of the array: %d\r\n", minimum, maximum, mean, median);
 
 }
 
@@ -125,7 +126,7 @@ void print_array(const unsigned char *data, int arraySize)
     #ifdef VERBOSE
     for(int i= 0; i < arraySize; i++)
     {
-        printf("Element %d of Array: %d\r\n", i, data[i]);
+        PRINTF("Element %d of Array: %d\r\n", i, data[i]);
     }
     #endif
 }
