@@ -112,12 +112,7 @@ unsigned char find_median(unsigned char *data, int arraySize)
 
 void print_statistics( unsigned char *data, int arraySize)
 {
-    unsigned char minimum = find_minimum(data,arraySize);
-    unsigned char maximum = find_maximum(data, arraySize);
-    unsigned char mean = find_mean(data, arraySize);
-    unsigned char median = find_median(data, arraySize);
-
-    PRINTF( " Minimum value of the array: %d\r\n Maximum value of the array: %d\r\n Mean value of the array: %d\r\n Median value of the array: %d\r\n", minimum, maximum, mean, median);
+    PRINTF( " Minimum value of the array: %d\r\n Maximum value of the array: %d\r\n Mean value of the array: %d\r\n Median value of the array: %d\r\n", find_minimum(data,arraySize), find_maximum(data,arraySize), find_mean(data, arraySize), find_median(data,arraySize));
 
 }
 

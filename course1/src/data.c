@@ -70,9 +70,9 @@ int32_t my_atoi(uint8_t *ptr, uint8_t numDigits, uint32_t base)
   for(int i = 0; i < numDigits; i++)
   {
     digit = *ptr - '0';
-    printf("%d\n", digit);
+    PRINTF("%d\n", digit);
     value+=digit*(pow(base,numDigits - i -1));
-    printf("%d\n", value);
+    PRINTF("%d\n", value);
     ptr++;
   }
 

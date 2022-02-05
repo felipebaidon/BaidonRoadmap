@@ -79,7 +79,7 @@ compile-all:
 .PHONY: Build
 Build: compile-all
 ifeq  ($(PLATFORM),MSP432)
-	$(CC) $(OBJS) $(SPECS) -o course1.out -Wl,$(LDFLAGS)$(LINKER_FILE)
+	$(CC) $(OBJS) $(SPECS) -lm -o course1.out -Wl,$(LDFLAGS)$(LINKER_FILE)
 else ifeq ($(PLATFORM),HOST)
 	$(CC) $(OBJS) -lm -o course1.out
 endif
