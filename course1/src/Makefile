@@ -75,15 +75,15 @@ assemble-all:
 
 .PHONY: compile-all
 compile-all:
-	$(CC) $(CPPFLAGS) $(CFLAG) $(INCLUDES) -c $(SOURCES)
+	$(CC) $(CPPFLAGS) $(CFLAG) -c $(SOURCES) $(INCLUDES)
 .PHONY: Build
 Build: compile-all
 ifeq  ($(PLATFORM),MSP432)
-	$(CC) $(OBJS) $(SPECS) -o C1M2.out -Wl,$(LDFLAGS)$(LINKER_FILE)
+	$(CC) $(OBJS) $(SPECS) -o course1.out -Wl,$(LDFLAGS)$(LINKER_FILE)
 else ifeq ($(PLATFORM),HOST)
-	$(CC) $(OBJS) -o C1M2.out
+	$(CC) $(OBJS) -lm -o course1.out
 endif
 
 .PHONY: clean
 clean:
-	rm  $(OBJS) $(ASMS) $(PPFS) main.out
+	rm -f $(OBJS) $(ASMS) $(PPFS) course1.out

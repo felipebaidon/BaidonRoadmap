@@ -18,11 +18,14 @@
  */
 
 #include <stdint.h>
-#include "course1.h"
 #include "platform.h"
 #include "memory.h"
 #include "data.h"
 #include "stats.h"
+#include "course1.h"
+
+#define BASE_16   (16)
+#define BASE_10   (10)
 
 int8_t test_data1() {
   uint8_t * ptr;
@@ -39,12 +42,13 @@ int8_t test_data1() {
   }
 
   digits = my_itoa( num, ptr, BASE_16);   
+  PRINTF("Number to string is:%s\n", ptr);
   value = my_atoi( ptr, digits, BASE_16);
   #ifdef VERBOSE
   PRINTF("  Initial number: %d\n", num);
   PRINTF("  Final Decimal number: %d\n", value);
   #endif
-  free_words( (uint32_t*)ptr );
+  free_words( (int32_t*)ptr );
 
   if ( value != num )
   {
@@ -73,7 +77,7 @@ int8_t test_data2() {
   PRINTF("  Initial Decimal number: %d\n", num);
   PRINTF("  Final Decimal number: %d\n", value);
   #endif
-  free_words( (uint32_t*)ptr );
+  free_words( (int32_t*)ptr );
 
   if ( value != num )
   {
@@ -118,7 +122,7 @@ int8_t test_memmove1() {
     }
   }
 
-  free_words( (uint32_t*)set );
+  free_words( (int32_t*)set );
   return ret;
 }
 
@@ -152,11 +156,12 @@ int8_t test_memmove2() {
   {
     if (set[i + 8] != i)
     {
+      PRINTF("%d\n",set[i +8]);
       ret = TEST_ERROR;
     }
   }
 
-  free_words( (uint32_t*)set );
+  free_words( (int32_t*)set );
   return ret;
 }
 
@@ -196,7 +201,7 @@ int8_t test_memmove3() {
   }
 
 
-  free_words( (uint32_t*)set );
+  free_words( (int32_t*)set );
   return ret;
 
 }
@@ -235,7 +240,7 @@ int8_t test_memcopy() {
     }
   }
 
-  free_words( (uint32_t*)set );
+  free_words( (int32_t*)set );
   return ret;
 }
 
@@ -281,7 +286,7 @@ int8_t test_memset()
     }
   }
   
-  free_words( (uint32_t*)set );
+  free_words( (int32_t*)set );
   return ret;
 }
 
@@ -306,8 +311,12 @@ int8_t test_reverse()
   my_memcopy(set, copy, MEM_SET_SIZE_B);
 
   print_array(set, MEM_SET_SIZE_B);
+
+ 
+  PRINTF("FINISHED PRINTING ARRAY\n");
   my_reverse(set, MEM_SET_SIZE_B);
   print_array(set, MEM_SET_SIZE_B);
+
 
   for (i = 0; i < MEM_SET_SIZE_B; i++)
   {
@@ -317,7 +326,7 @@ int8_t test_reverse()
     }
   }
 
-  free_words( (uint32_t*)copy );
+  free_words( (int32_t*)copy );
   return ret;
 }
 
@@ -338,6 +347,7 @@ void course1(void)
 
   for ( i = 0; i < TESTCOUNT; i++) 
   {
+    PRINTF("Test %d:%d\n",i, results[i]);
     failed += results[i];
   }
 

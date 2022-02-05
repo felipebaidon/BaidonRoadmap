@@ -22,6 +22,8 @@
 #ifndef __MEMORY_H__
 #define __MEMORY_H__
 
+#include <stdint.h>
+#include <stddef.h>
 /**
  * @brief Sets a value of a data array 
  *
@@ -116,7 +118,7 @@ uint8_t* my_memmove(uint8_t* src, uint8_t* dst, size_t length);
 *
 *@return A pointer to the destination of copy
 */
-uint8_t* my_memcopy(uint8_t* src, uint8_t dst, size_t length);
+uint8_t* my_memcopy(uint8_t* src, uint8_t* dst, size_t length);
 
 /*
 *@brief This function copies the specified value to the length of the 

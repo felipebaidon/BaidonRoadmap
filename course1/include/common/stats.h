@@ -44,7 +44,7 @@ void print_statistics(unsigned char *data, int arraySize);
  *
  */
 
-void print_array(const unsigned char *data, int arraySize);
+void print_array(unsigned char *data, int arraySize);
 
 /**
  * @brief This function calculates the median of an  array

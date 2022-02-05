@@ -121,7 +121,7 @@ void print_statistics( unsigned char *data, int arraySize)
 
 }
 
-void print_array(const unsigned char *data, int arraySize)
+void print_array(unsigned char *data, int arraySize)
 {
     #ifdef VERBOSE
     for(int i= 0; i < arraySize; i++)
