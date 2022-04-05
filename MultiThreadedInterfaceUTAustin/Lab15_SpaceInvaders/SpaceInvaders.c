@@ -344,26 +344,26 @@ void GPIOSwitch_Init(void)
 	
 }
 
-void GPIODAC_Init(void)
-{
-	unsigned long delay;
-	SYSCTL_RCGCGPIO_R |= 0X12; //turn on clock for port E and port B
-	delay = SYSCTL_RCGCGPIO_R;
-	GPIO_PORTE_DIR_R &= ~0X8;
-	GPIO_PORTE_AFSEL_R &= ~0X8;
-	GPIO_PORTE_AMSEL_R &= ~0X8;
-	GPIO_PORTE_PCTL_R &= ~0X8;
-	GPIO_PORTE_PDR_R |= 0X8;
-	GPIO_PORTE_DEN_R |= 0X8;
-	
-	//initialize PORT B for DAC output
-	GPIO_PORTB_DIR_R |= 0X08;
-	GPIO_PORTB_AFSEL_R &= ~0X08;
-	GPIO_PORTB_AMSEL_R &= ~0X08;
-	GPIO_PORTB_PCTL_R &= ~0X08;
-	GPIO_PORTB_DEN_R |= 0X08;
-	
-}
+//void GPIODAC_Init(void)
+//{
+//	unsigned long delay;
+//	SYSCTL_RCGCGPIO_R |= 0X12; //turn on clock for port E and port B
+//	delay = SYSCTL_RCGCGPIO_R;
+//	GPIO_PORTE_DIR_R &= ~0X8;
+//	GPIO_PORTE_AFSEL_R &= ~0X8;
+//	GPIO_PORTE_AMSEL_R &= ~0X8;
+//	GPIO_PORTE_PCTL_R &= ~0X8;
+//	GPIO_PORTE_PDR_R |= 0X8;
+//	GPIO_PORTE_DEN_R |= 0X8;
+//	
+//	//initialize PORT B for DAC output
+//	GPIO_PORTB_DIR_R |= 0X08;
+//	GPIO_PORTB_AFSEL_R &= ~0X08;
+//	GPIO_PORTB_AMSEL_R &= ~0X08;
+//	GPIO_PORTB_PCTL_R &= ~0X08;
+//	GPIO_PORTB_DEN_R |= 0X08;
+//	
+//}
 
 unsigned int FireButton_In()
 {
@@ -394,80 +394,17 @@ void ToggleSpecialIndicator()
 	GPIO_PORTB_DATA_R ^= 0X20;
 }
 
-//int main(void){
-//	unsigned int previousFireButtonState, currentFireButtonState;
-//	unsigned int previousSpecialButtonState, currentSpecialButtonState;
-//	
-//  TExaS_Init(SSI0_Real_Nokia5110_Scope);  // set system clock to 80 MHz
-//	GPIO_Init();
-//  //Random_Init(1);
-//  //Nokia5110_Init();
-//  //Nokia5110_ClearBuffer();
-//	//Nokia5110_DisplayBuffer();      // draw buffer
-
-////  Nokia5110_PrintBMP(32, 47, PlayerShip0, 0); // player ship middle bottom
-////  Nokia5110_PrintBMP(33, 47 - PLAYERH, Bunker0, 0);
-
-////  Nokia5110_PrintBMP(0, ENEMY10H - 1, SmallEnemy10PointA, 0);
-////  Nokia5110_PrintBMP(16, ENEMY10H - 1, SmallEnemy20PointA, 0);
-////  Nokia5110_PrintBMP(32, ENEMY10H - 1, SmallEnemy20PointA, 0);
-////  Nokia5110_PrintBMP(48, ENEMY10H - 1, SmallEnemy30PointA, 0);
-////  Nokia5110_PrintBMP(64, ENEMY10H - 1, SmallEnemy30PointA, 0);
-////  Nokia5110_DisplayBuffer();     // draw buffer
-
-////  Delay100ms(50);              // delay 5 sec at 50 MHz
-
-
-////  Nokia5110_Clear();
-////  Nokia5110_SetCursor(1, 1);
-////  Nokia5110_OutString("GAME OVER");
-////  Nokia5110_SetCursor(1, 2);
-////  Nokia5110_OutString("Nice try,");
-////  Nokia5110_SetCursor(1, 3);
-////  Nokia5110_OutString("Earthling!");
-////  Nokia5110_SetCursor(2, 4);
-////  Nokia5110_OutUDec(1234);
-//  previousFireButtonState = FireButton_In();
-//	previousSpecialButtonState = SpecialButton_In();
-//	
-//  while(1)
-//	{
-//		currentFireButtonState = FireButton_In();
-//		currentSpecialButtonState = SpecialButton_In();
-//		
-//		if(currentFireButtonState && !previousFireButtonState)//switch just pressed
-//		{
-//			ToggleFireIndicator(); 
-//		}
-//		else if( previousFireButtonState && !currentFireButtonState)
-//		{
-//			ToggleFireIndicator();
-//		}
-//		
-//		if(currentSpecialButtonState && !previousSpecialButtonState)//switch just pressed
-//		{
-//			ToggleSpecialIndicator();
-//		}
-//		else if( previousSpecialButtonState && !currentSpecialButtonState)
-//		{
-//			ToggleSpecialIndicator();
-//		}
-//		
-//		previousSpecialButtonState = currentSpecialButtonState;
-//		previousFireButtonState = currentFireButtonState;
-//		Delay100ms(1);
-//  }
-//}
-
 int main()
 {
 	
-	unsigned int currentButtonState, previousButtonState;
-	TExaS_Init(SSI0_Real_Nokia5110_Scope);  // set system clock to 80 MHz
-	GPIODAC_Init();
+	unsigned int currentFireButtonState, previousFireButtonState;
+	unsigned int currentSpecialButtonState, previousSpecialButtonState;
 	
-	previousButtonState = GPIO_PORTE_DATA_R & 
-
+	TExaS_Init(SSI0_Real_Nokia5110_Scope);  // set system clock to 80 MHz
+	GPIOSwitch_Init();
+	
+	previousFireButtonState = FireButton_In();
+	previousSpecialButtonState = SpecialButton_In();
 	
   while(1)
 	{
