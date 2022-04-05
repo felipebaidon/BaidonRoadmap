@@ -4,3 +4,4 @@
 .\lab13.o: Piano.h
 .\lab13.o: TExaS.h
 .\lab13.o: heartbeat.h
+.\lab13.o: SysTick.h
