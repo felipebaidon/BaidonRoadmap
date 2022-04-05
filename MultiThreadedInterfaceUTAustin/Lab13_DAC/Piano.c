@@ -39,7 +39,7 @@ unsigned long Piano_In(void){
 	
 	unsigned int input = 0;
 	
-	input = GPIO_PORTE_DATA_R & 0X08;
+	input = GPIO_PORTE_DATA_R & 0X0f;
   
   return input; // remove this, replace with input
 }

@@ -13,6 +13,9 @@
 
 #define MAIN_CLOCK_FREQ	80000000 //hz
 
+unsigned int Index;
+
+const unsigned char SineWave[16] = {4,5,6,7,7,7,6,5,4,3,2,1,1,1,2,3};
 
 // **************Sound_Init*********************
 // Initialize Systick periodic interrupts
@@ -20,6 +23,7 @@
 // Input: none
 // Output: none
 void Sound_Init(void){
+	Index = 0;
 	SysTick_init();
 	DAC_Init();
   
@@ -54,5 +58,7 @@ void Sound_Off(void){
 // Executed every 12.5ns*(period)
 void SysTick_Handler(void){
 	
+	Index = (Index+1)&0x0F;  
+  DAC_Out(SineWave[Index]); 
    
 }
