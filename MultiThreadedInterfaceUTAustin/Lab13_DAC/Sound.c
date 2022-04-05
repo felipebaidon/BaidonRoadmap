@@ -12,10 +12,11 @@
 #include "..//tm4c123gh6pm.h"
 
 #define MAIN_CLOCK_FREQ	80000000 //hz
+#define SIZE_OF_SINE_TABLE	16
 
 unsigned int Index;
 
-const unsigned char SineWave[16] = {4,5,6,7,7,7,6,5,4,3,2,1,1,1,2,3};
+const unsigned char SineWave[SIZE_OF_SINE_TABLE] = {4,5,6,7,7,7,6,5,4,3,2,1,1,1,2,3};
 
 // **************Sound_Init*********************
 // Initialize Systick periodic interrupts
@@ -37,10 +38,11 @@ void Sound_Init(void){
 //           Minimum is determined by length of ISR
 // Output: none
 void Sound_Tone(double period){
-// this routine sets the RELOAD and starts SysTick
+	unsigned int SysTickFreq = 0;
 	unsigned int reloadValue = 0;
-	
-	reloadValue = (int)( MAIN_CLOCK_FREQ / period) - 1;
+
+	SysTickFreq = period * SIZE_OF_SINE_TABLE; //relation is resulting frequency = systick freq / size of sine table
+	reloadValue = (int)( MAIN_CLOCK_FREQ / SysTickFreq) - 1;
 	
 	SysTick_SetFreq(reloadValue);
 }

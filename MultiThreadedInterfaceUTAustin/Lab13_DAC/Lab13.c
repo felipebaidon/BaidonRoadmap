@@ -40,39 +40,36 @@ int main(void){ // Real Lab13
   Piano_Init();
 	Heartbeat_Init();
   DisableInterrupts();  // enable after all initialization are done
-	previous = Piano_In()&0x1;
+	previous = Piano_In();
   while(1){                
-// input from keys to select tone
-		input= Piano_In() &0x1;
-
+		input= Piano_In();
+		
     if(input&&(previous==0)){ // just pressed     
       EnableInterrupts();
-      SysTick_SetFreq(50000);      // Play 100 Hz wave
+			switch(input)
+			{			
+				case C_KEY_PRESSED:
+					Sound_Tone(C_NOTE);
+					break;
+				case D_KEY_PRESSED:
+					Sound_Tone(D_NOTE);
+					break;
+				case E_KEY_PRESSED:
+					Sound_Tone(E_NOTE);
+					break;
+				case G_KEY_PRESSED:
+					Sound_Tone(G_NOTE);
+					break;
+			}
     }
-    if(previous&&(input==0)){ // just released     
+    if(previous&&(input==0))
+			{     
       DisableInterrupts(); 			// stop sound
-		}
-		
+			}	
     previous = input; 
     delay(10);  // remove switch bounce    
   }  
-		
-//			switch(keyPressed)
-//			{			
-//				case C_KEY_PRESSED:
-//					Sound_Tone(C_NOTE);
-//					break;
-//				case D_KEY_PRESSED:
-//					Sound_Tone(D_NOTE);
-//					break;
-//				case E_KEY_PRESSED:
-//					Sound_Tone(E_NOTE);
-//					break;
-//				case G_KEY_PRESSED:
-//					Sound_Tone(G_NOTE);
-//					break;
-//			}
-  }
+}
             
 
 // Inputs: Number of msec to delay
