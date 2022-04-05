@@ -77,6 +77,7 @@ void DisableInterrupts(void); // Disable interrupts
 void EnableInterrupts(void);  // Enable interrupts
 void Timer2_Init(unsigned long period);
 void Delay100ms(unsigned long count); // time delay in 0.1 seconds
+void Delay10ms(void);
 unsigned long TimerCount;
 unsigned long Semaphore;
 
@@ -322,48 +323,44 @@ const unsigned char Laser1[] = {
 #define PLAYERW     ((unsigned char)PlayerShip0[18])
 #define PLAYERH     ((unsigned char)PlayerShip0[22])
 
-void GPIOSwitch_Init(void)
-{
-	unsigned long delay;
-	//initialize PORT E for switch inputs
-	SYSCTL_RCGCGPIO_R |= 0X12; //turn on clock for port E and port B
-	delay = SYSCTL_RCGCGPIO_R;
-	GPIO_PORTE_DIR_R &= ~0X3;
-	GPIO_PORTE_AFSEL_R &= ~0X3;
-	GPIO_PORTE_AMSEL_R &= ~0X3;
-	GPIO_PORTE_PCTL_R &= ~0X3;
-	GPIO_PORTE_PDR_R |= 0X3;
-	GPIO_PORTE_DEN_R |= 0X3;
-	
-	//initialize PORT B for LEDs
-	GPIO_PORTB_DIR_R |= 0X30;
-	GPIO_PORTB_AFSEL_R &= ~0X30;
-	GPIO_PORTB_AMSEL_R &= ~0X30;
-	GPIO_PORTB_PCTL_R &= ~0X30;
-	GPIO_PORTB_DEN_R |= 0X30;
-	
-}
-
-//void GPIODAC_Init(void)
+//void GPIOSwitch_Init(void)
 //{
 //	unsigned long delay;
+//	//initialize PORT E for switch inputs
 //	SYSCTL_RCGCGPIO_R |= 0X12; //turn on clock for port E and port B
 //	delay = SYSCTL_RCGCGPIO_R;
-//	GPIO_PORTE_DIR_R &= ~0X8;
-//	GPIO_PORTE_AFSEL_R &= ~0X8;
-//	GPIO_PORTE_AMSEL_R &= ~0X8;
-//	GPIO_PORTE_PCTL_R &= ~0X8;
-//	GPIO_PORTE_PDR_R |= 0X8;
-//	GPIO_PORTE_DEN_R |= 0X8;
+//	GPIO_PORTE_DIR_R &= ~0X3;
+//	GPIO_PORTE_AFSEL_R &= ~0X3;
+//	GPIO_PORTE_AMSEL_R &= ~0X3;
+//	GPIO_PORTE_PCTL_R &= ~0X3;
+//	GPIO_PORTE_PDR_R |= 0X3;
+//	GPIO_PORTE_DEN_R |= 0X3;
 //	
-//	//initialize PORT B for DAC output
-//	GPIO_PORTB_DIR_R |= 0X08;
-//	GPIO_PORTB_AFSEL_R &= ~0X08;
-//	GPIO_PORTB_AMSEL_R &= ~0X08;
-//	GPIO_PORTB_PCTL_R &= ~0X08;
-//	GPIO_PORTB_DEN_R |= 0X08;
+//	//initialize PORT E for DAC
+//	
+//	
+//	//initialize PORT B for LEDs
+//	GPIO_PORTB_DIR_R |= 0X30;
+//	GPIO_PORTB_AFSEL_R &= ~0X30;
+//	GPIO_PORTB_AMSEL_R &= ~0X30;
+//	GPIO_PORTB_PCTL_R &= ~0X30;
+//	GPIO_PORTB_DEN_R |= 0X30;
 //	
 //}
+
+void GPIODAC_Init(void)
+{
+	unsigned long delay;
+	SYSCTL_RCGCGPIO_R |= 0X2;
+	delay = SYSCTL_RCGCGPIO_R;
+	
+	//initialize PORT B for DAC output
+	GPIO_PORTB_DIR_R |= 0X0f;
+	GPIO_PORTB_AFSEL_R &= ~0X0f;
+	GPIO_PORTB_AMSEL_R &= ~0X0f;
+	GPIO_PORTB_PCTL_R &= ~0X0f;
+	GPIO_PORTB_DEN_R |= 0X0f;
+}
 
 unsigned int FireButton_In()
 {
@@ -394,47 +391,70 @@ void ToggleSpecialIndicator()
 	GPIO_PORTB_DATA_R ^= 0X20;
 }
 
+void DAC_out(unsigned int data)
+{
+	GPIO_PORTB_DATA_R = data;
+}
+
 int main()
 {
 	
-	unsigned int currentFireButtonState, previousFireButtonState;
-	unsigned int currentSpecialButtonState, previousSpecialButtonState;
+	//unsigned int currentFireButtonState, previousFireButtonState;
+	//unsigned int currentSpecialButtonState, previousSpecialButtonState;
+	unsigned int i=0;
 	
 	TExaS_Init(SSI0_Real_Nokia5110_Scope);  // set system clock to 80 MHz
-	GPIOSwitch_Init();
+	GPIODAC_Init();
 	
-	previousFireButtonState = FireButton_In();
-	previousSpecialButtonState = SpecialButton_In();
-	
-  while(1)
+	while(1)
 	{
-		currentFireButtonState = FireButton_In();
-		currentSpecialButtonState = SpecialButton_In();
+		DAC_out(i);
+		i = ++i & 0xf;
+		Delay10ms();
+	}
 		
-		if(currentFireButtonState && !previousFireButtonState)//switch just pressed
-		{
-			ToggleFireIndicator(); 
-		}
-		else if( previousFireButtonState && !currentFireButtonState)
-		{
-			ToggleFireIndicator();
-		}
-		
-		if(currentSpecialButtonState && !previousSpecialButtonState)//switch just pressed
-		{
-			ToggleSpecialIndicator();
-		}
-		else if( previousSpecialButtonState && !currentSpecialButtonState)
-		{
-			ToggleSpecialIndicator();
-		}
-		
-		previousSpecialButtonState = currentSpecialButtonState;
-		previousFireButtonState = currentFireButtonState;
-		Delay100ms(1);
-  }
-	
 }
+
+//int main()
+//{
+//	
+//	unsigned int currentFireButtonState, previousFireButtonState;
+//	unsigned int currentSpecialButtonState, previousSpecialButtonState;
+//	
+//	TExaS_Init(SSI0_Real_Nokia5110_Scope);  // set system clock to 80 MHz
+//	GPIOSwitch_Init();
+//	
+//	previousFireButtonState = FireButton_In();
+//	previousSpecialButtonState = SpecialButton_In();
+//	
+//  while(1)
+//	{
+//		currentFireButtonState = FireButton_In();
+//		currentSpecialButtonState = SpecialButton_In();
+//		
+//		if(currentFireButtonState && !previousFireButtonState)//switch just pressed
+//		{
+//			ToggleFireIndicator(); 
+//		}
+//		else if( previousFireButtonState && !currentFireButtonState)
+//		{
+//			ToggleFireIndicator();
+//		}
+//		
+//		if(currentSpecialButtonState && !previousSpecialButtonState)//switch just pressed
+//		{
+//			ToggleSpecialIndicator();
+//		}
+//		else if( previousSpecialButtonState && !currentSpecialButtonState)
+//		{
+//			ToggleSpecialIndicator();
+//		}
+//		
+//		previousSpecialButtonState = currentSpecialButtonState;
+//		previousFireButtonState = currentFireButtonState;
+//		Delay100ms(1);
+//  }
+//}
 
 
 // You can use this timer only if you learn how it works
@@ -471,3 +491,15 @@ void Delay100ms(unsigned long count){unsigned long volatile time;
     count--;
   }
 }
+
+//---------------------Delay10ms---------------------
+// wait 10ms for switches to stop bouncing
+// Input: none
+// Output: none
+void Delay10ms(void){unsigned long volatile time;
+  time = 14545;  // 10msec
+  while(time){
+		time--;
+  }
+}
+
