@@ -324,14 +324,18 @@ const unsigned char Laser1[] = {
 #define PLAYERH     ((unsigned char)PlayerShip0[22])
 
 
+#define SIZE_OF_SINE_TABLE	16
+#define MAIN_CLOCK_FREQ	80000000
+
+#define C_NOTE	523.251 //Hz
+
 const unsigned char SineWave[16] = {4,5,6,7,7,7,6,5,4,3,2,1,1,1,2,3};
 unsigned int Index;
 
-void GPIOSwitch_Init(void)
+void Switch_Init(void)
 {
 	unsigned long delay;
-	//initialize PORT E for switch inputs
-	SYSCTL_RCGCGPIO_R |= 0X12; //turn on clock for port E and port B
+	SYSCTL_RCGCGPIO_R |= 0X10;
 	delay = SYSCTL_RCGCGPIO_R;
 	GPIO_PORTE_DIR_R &= ~0X3;
 	GPIO_PORTE_AFSEL_R &= ~0X3;
@@ -340,22 +344,30 @@ void GPIOSwitch_Init(void)
 	GPIO_PORTE_PDR_R |= 0X3;
 	GPIO_PORTE_DEN_R |= 0X3;
 	
-	//initialize PORT B for LEDs
+}
+
+void LED_Init(void)
+{
+	unsigned long delay;
+	
+	SYSCTL_RCGCGPIO_R |= 0X02;
+	delay = SYSCTL_RCGCGPIO_R;
+	
 	GPIO_PORTB_DIR_R |= 0X30;
 	GPIO_PORTB_AFSEL_R &= ~0X30;
 	GPIO_PORTB_AMSEL_R &= ~0X30;
 	GPIO_PORTB_PCTL_R &= ~0X30;
 	GPIO_PORTB_DEN_R |= 0X30;
-	
 }
+	
 
-void GPIODAC_Init(void)
+void DAC_Init(void)
 {
 	unsigned long delay;
-	SYSCTL_RCGCGPIO_R |= 0X2;
+	
+	SYSCTL_RCGCGPIO_R |= 0X02;
 	delay = SYSCTL_RCGCGPIO_R;
 	
-	//initialize PORT B for DAC output
 	GPIO_PORTB_DIR_R |= 0X0f;
 	GPIO_PORTB_AFSEL_R &= ~0X0f;
 	GPIO_PORTB_AMSEL_R &= ~0X0f;
@@ -363,15 +375,30 @@ void GPIODAC_Init(void)
 	GPIO_PORTB_DEN_R |= 0X0f;
 }
 
-void SysTick_Init(unsigned long period)
+void Sound_Init(void)
+{
+	NVIC_ST_CTRL_R = 0;
+	NVIC_SYS_PRI3_R = NVIC_SYS_PRI3_R&0x00FFFFFF; // priority 0  
+	NVIC_ST_CTRL_R = 0x00000007;  // enable with core clock and interrupts
+}
+
+void Sound_SetPeriod(unsigned long period)
 {
 	NVIC_ST_CTRL_R = 0;
 	NVIC_ST_RELOAD_R = period -1;
 	NVIC_ST_CURRENT_R = 0;
 	NVIC_SYS_PRI3_R = NVIC_SYS_PRI3_R&0x00FFFFFF; // priority 0  
 	NVIC_ST_CTRL_R = 0X07;
+}
+
+void Sound_SetTone(double period){
+	unsigned int SysTickFreq = 0;
+	unsigned int reloadValue = 0;
+
+	SysTickFreq = period * SIZE_OF_SINE_TABLE; //relation is resulting frequency = systick freq / size of sine table
+	reloadValue = (int)( MAIN_CLOCK_FREQ / SysTickFreq) - 1;
 	
-	Index=0;
+	Sound_SetPeriod(reloadValue);
 }
 
 unsigned int FireButton_In()
@@ -425,10 +452,12 @@ int main()
 	
 	TExaS_Init(SSI0_Real_Nokia5110_Scope);  // set system clock to 80 MHz
 	
-	GPIOSwitch_Init();
-	GPIODAC_Init();
+	Switch_Init();
+	LED_Init();
+	DAC_Init();
+	Sound_Init();
 	
-	
+	Index=0;
 	previousFireButtonState = FireButton_In();
 	previousSpecialButtonState = SpecialButton_In();
 	
@@ -441,7 +470,8 @@ int main()
 		{
 			TurnOn_FireIndicator();
 			EnableInterrupts();
-			SysTick_Init(85593);
+			Sound_Init();
+			Sound_SetTone(C_NOTE);
 		}
 		else if(!currentFireButtonState && previousFireButtonState)
 		{
@@ -453,7 +483,7 @@ int main()
 		{
 			TurnOn_SpecialIndicator();
 			EnableInterrupts();
-			SysTick_Init(85593);
+			Sound_SetTone(C_NOTE);
 		}
 		else if(!currentSpecialButtonState && previousSpecialButtonState)
 		{
