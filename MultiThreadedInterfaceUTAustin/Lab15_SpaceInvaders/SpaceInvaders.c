@@ -323,30 +323,31 @@ const unsigned char Laser1[] = {
 #define PLAYERW     ((unsigned char)PlayerShip0[18])
 #define PLAYERH     ((unsigned char)PlayerShip0[22])
 
-//void GPIOSwitch_Init(void)
-//{
-//	unsigned long delay;
-//	//initialize PORT E for switch inputs
-//	SYSCTL_RCGCGPIO_R |= 0X12; //turn on clock for port E and port B
-//	delay = SYSCTL_RCGCGPIO_R;
-//	GPIO_PORTE_DIR_R &= ~0X3;
-//	GPIO_PORTE_AFSEL_R &= ~0X3;
-//	GPIO_PORTE_AMSEL_R &= ~0X3;
-//	GPIO_PORTE_PCTL_R &= ~0X3;
-//	GPIO_PORTE_PDR_R |= 0X3;
-//	GPIO_PORTE_DEN_R |= 0X3;
-//	
-//	//initialize PORT E for DAC
-//	
-//	
-//	//initialize PORT B for LEDs
-//	GPIO_PORTB_DIR_R |= 0X30;
-//	GPIO_PORTB_AFSEL_R &= ~0X30;
-//	GPIO_PORTB_AMSEL_R &= ~0X30;
-//	GPIO_PORTB_PCTL_R &= ~0X30;
-//	GPIO_PORTB_DEN_R |= 0X30;
-//	
-//}
+
+const unsigned char SineWave[16] = {4,5,6,7,7,7,6,5,4,3,2,1,1,1,2,3};
+unsigned int Index;
+
+void GPIOSwitch_Init(void)
+{
+	unsigned long delay;
+	//initialize PORT E for switch inputs
+	SYSCTL_RCGCGPIO_R |= 0X12; //turn on clock for port E and port B
+	delay = SYSCTL_RCGCGPIO_R;
+	GPIO_PORTE_DIR_R &= ~0X3;
+	GPIO_PORTE_AFSEL_R &= ~0X3;
+	GPIO_PORTE_AMSEL_R &= ~0X3;
+	GPIO_PORTE_PCTL_R &= ~0X3;
+	GPIO_PORTE_PDR_R |= 0X3;
+	GPIO_PORTE_DEN_R |= 0X3;
+	
+	//initialize PORT B for LEDs
+	GPIO_PORTB_DIR_R |= 0X30;
+	GPIO_PORTB_AFSEL_R &= ~0X30;
+	GPIO_PORTB_AMSEL_R &= ~0X30;
+	GPIO_PORTB_PCTL_R &= ~0X30;
+	GPIO_PORTB_DEN_R |= 0X30;
+	
+}
 
 void GPIODAC_Init(void)
 {
@@ -360,6 +361,17 @@ void GPIODAC_Init(void)
 	GPIO_PORTB_AMSEL_R &= ~0X0f;
 	GPIO_PORTB_PCTL_R &= ~0X0f;
 	GPIO_PORTB_DEN_R |= 0X0f;
+}
+
+void SysTick_Init(unsigned long period)
+{
+	NVIC_ST_CTRL_R = 0;
+	NVIC_ST_RELOAD_R = period -1;
+	NVIC_ST_CURRENT_R = 0;
+	NVIC_SYS_PRI3_R = NVIC_SYS_PRI3_R&0x00FFFFFF; // priority 0  
+	NVIC_ST_CTRL_R = 0X07;
+	
+	Index=0;
 }
 
 unsigned int FireButton_In()
@@ -381,14 +393,24 @@ unsigned int SpecialButton_In()
 	
 }
 
-void ToggleFireIndicator()
+void TurnOn_FireIndicator()
 {
-	GPIO_PORTB_DATA_R ^= 0X10;
+	GPIO_PORTB_DATA_R |= 0X10;
 }
 
-void ToggleSpecialIndicator()
+void TurnOff_FireIndicator()
 {
-	GPIO_PORTB_DATA_R ^= 0X20;
+	GPIO_PORTB_DATA_R &= ~0X10;
+}
+
+void TurnOn_SpecialIndicator()
+{
+	GPIO_PORTB_DATA_R |= 0X20;
+}
+
+void TurnOff_SpecialIndicator()
+{
+	GPIO_PORTB_DATA_R &= ~0X20;
 }
 
 void DAC_out(unsigned int data)
@@ -397,66 +419,60 @@ void DAC_out(unsigned int data)
 }
 
 int main()
-{
-	
-	//unsigned int currentFireButtonState, previousFireButtonState;
-	//unsigned int currentSpecialButtonState, previousSpecialButtonState;
-	unsigned int i=0;
+{	
+	unsigned int currentFireButtonState, previousFireButtonState;
+	unsigned int currentSpecialButtonState, previousSpecialButtonState;
 	
 	TExaS_Init(SSI0_Real_Nokia5110_Scope);  // set system clock to 80 MHz
+	
+	GPIOSwitch_Init();
 	GPIODAC_Init();
+	
+	
+	previousFireButtonState = FireButton_In();
+	previousSpecialButtonState = SpecialButton_In();
 	
 	while(1)
 	{
-		DAC_out(i);
-		i = ++i & 0xf;
+		currentFireButtonState = FireButton_In();
+		currentSpecialButtonState = SpecialButton_In();
+		
+		if( currentFireButtonState && !previousFireButtonState)
+		{
+			TurnOn_FireIndicator();
+			EnableInterrupts();
+			SysTick_Init(85593);
+		}
+		else if(!currentFireButtonState && previousFireButtonState)
+		{
+			TurnOff_FireIndicator();
+			DisableInterrupts();
+		}
+		
+		if( currentSpecialButtonState && !previousSpecialButtonState)
+		{
+			TurnOn_SpecialIndicator();
+			EnableInterrupts();
+			SysTick_Init(85593);
+		}
+		else if(!currentSpecialButtonState && previousSpecialButtonState)
+		{
+			TurnOff_SpecialIndicator();
+			DisableInterrupts();
+		}
+		
+		previousFireButtonState = currentFireButtonState;
+		previousSpecialButtonState = currentSpecialButtonState;
 		Delay10ms();
 	}
-		
 }
-
-//int main()
-//{
-//	
-//	unsigned int currentFireButtonState, previousFireButtonState;
-//	unsigned int currentSpecialButtonState, previousSpecialButtonState;
-//	
-//	TExaS_Init(SSI0_Real_Nokia5110_Scope);  // set system clock to 80 MHz
-//	GPIOSwitch_Init();
-//	
-//	previousFireButtonState = FireButton_In();
-//	previousSpecialButtonState = SpecialButton_In();
-//	
-//  while(1)
-//	{
-//		currentFireButtonState = FireButton_In();
-//		currentSpecialButtonState = SpecialButton_In();
-//		
-//		if(currentFireButtonState && !previousFireButtonState)//switch just pressed
-//		{
-//			ToggleFireIndicator(); 
-//		}
-//		else if( previousFireButtonState && !currentFireButtonState)
-//		{
-//			ToggleFireIndicator();
-//		}
-//		
-//		if(currentSpecialButtonState && !previousSpecialButtonState)//switch just pressed
-//		{
-//			ToggleSpecialIndicator();
-//		}
-//		else if( previousSpecialButtonState && !currentSpecialButtonState)
-//		{
-//			ToggleSpecialIndicator();
-//		}
-//		
-//		previousSpecialButtonState = currentSpecialButtonState;
-//		previousFireButtonState = currentFireButtonState;
-//		Delay100ms(1);
-//  }
-//}
-
-
+ void SysTick_Handler(void)
+ {
+	 DAC_out(SineWave[Index]);
+	 Index = ++Index & 0xf;
+	 
+ }
+ 
 // You can use this timer only if you learn how it works
 void Timer2_Init(unsigned long period){ 
   unsigned long volatile delay;
