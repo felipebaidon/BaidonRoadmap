@@ -3,7 +3,3 @@
 .\measurementofdistance.o: ..//tm4c123gh6pm.h
 .\measurementofdistance.o: Nokia5110.h
 .\measurementofdistance.o: TExaS.h
-.\measurementofdistance.o: conversion.h
-.\measurementofdistance.o: SysTick.h
-.\measurementofdistance.o: Heartbeat.h
-.\measurementofdistance.o: uart.h

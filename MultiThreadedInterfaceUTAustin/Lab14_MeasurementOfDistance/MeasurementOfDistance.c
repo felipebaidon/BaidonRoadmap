@@ -34,6 +34,9 @@
 #include "Nokia5110.h"
 #include "TExaS.h"
 
+#define A_CONSTANT	500
+#define B_CONSTANT	0
+
 void EnableInterrupts(void);  // Enable interrupts
 
 unsigned char String[10]; // null-terminated ASCII string
@@ -50,7 +53,11 @@ unsigned long Flag;       // 1 means valid Distance, 0 means Distance is empty
 // Input: sample  12-bit ADC sample
 // Output: 32-bit distance (resolution 0.001cm)
 unsigned long Convert(unsigned long sample){
-  return 0;  // replace this line with real code
+	unsigned long distance;
+	
+	distance = ((A_CONSTANT * sample) >> 10) + B_CONSTANT;
+	
+  return distance ;  // replace this line with real code
 }
 
 // Initialize SysTick interrupts to trigger at 40 Hz, 25 ms
@@ -78,29 +85,29 @@ void UART_ConvertDistance(unsigned long n){
 
 }
 
-// main1 is a simple main program allowing you to debug the ADC interface
-int main(void){ 
-  TExaS_Init(ADC0_AIN1_PIN_PE2, SSI0_Real_Nokia5110_Scope);
-  ADC0_Init();    // initialize ADC0, channel 1, sequencer 3
-  EnableInterrupts();
-  while(1){ 
-    ADCdata = ADC0_In();
-  }
-}
-// once the ADC is operational, you can use main2 to debug the convert to distance
-//int main2(void){ 
-//  TExaS_Init(ADC0_AIN1_PIN_PE2, SSI0_Real_Nokia5110_NoScope);
+//// main1 is a simple main program allowing you to debug the ADC interface
+//int main(void){ 
+//  TExaS_Init(ADC0_AIN1_PIN_PE2, SSI0_Real_Nokia5110_Scope);
 //  ADC0_Init();    // initialize ADC0, channel 1, sequencer 3
-//  Nokia5110_Init();             // initialize Nokia5110 LCD
 //  EnableInterrupts();
 //  while(1){ 
 //    ADCdata = ADC0_In();
-//    Nokia5110_SetCursor(0, 0);
-//    Distance = Convert(ADCdata);
-//    UART_ConvertDistance(Distance); // from Lab 11
-//    Nokia5110_OutString(String);    // output to Nokia5110 LCD (optional)
 //  }
 //}
+// once the ADC is operational, you can use main2 to debug the convert to distance
+int main(void){ 
+  TExaS_Init(ADC0_AIN1_PIN_PE2, SSI0_Real_Nokia5110_NoScope);
+  ADC0_Init();    // initialize ADC0, channel 1, sequencer 3
+  Nokia5110_Init();             // initialize Nokia5110 LCD
+  EnableInterrupts();
+  while(1){ 
+    ADCdata = ADC0_In();
+    Nokia5110_SetCursor(0, 0);
+    Distance = Convert(ADCdata);
+    //UART_ConvertDistance(Distance); // from Lab 11
+    //Nokia5110_OutString(String);    // output to Nokia5110 LCD (optional)
+  }
+}
 // once the ADC and convert to distance functions are operational,
 // you should use this main to build the final solution with interrupts and mailbox
 //int main(void){ 
