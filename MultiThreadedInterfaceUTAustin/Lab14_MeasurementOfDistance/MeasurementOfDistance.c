@@ -81,7 +81,28 @@ void SysTick_Handler(void){
 // 2210 to "2.210 cm"
 //10000 to "*.*** cm"  any value larger than 9999 converted to "*.*** cm"
 void UART_ConvertDistance(unsigned long n){
-// as part of Lab 11 you implemented this function
+	
+	unsigned int i = 0;
+	
+	if(n <= 9999)
+	{
+		String[i++] = n/1000;
+		String[i++] = '.';
+		
+	}
+	else
+	{
+		String[i++] = '*';
+		String[i++] = '.';
+		for(int j = 0; j < 3; j++)
+		{
+			String[i++] = '*';
+		}
+		String[i++] = 'c';
+		String[i++] = 'm';
+		String[i++] = ' ';
+		String[i] = '\0';
+	}
 
 }
 
@@ -104,8 +125,8 @@ int main(void){
     ADCdata = ADC0_In();
     Nokia5110_SetCursor(0, 0);
     Distance = Convert(ADCdata);
-    //UART_ConvertDistance(Distance); // from Lab 11
-    //Nokia5110_OutString(String);    // output to Nokia5110 LCD (optional)
+    UART_ConvertDistance(Distance); // from Lab 11
+    Nokia5110_OutString(String);    // output to Nokia5110 LCD (optional)
   }
 }
 // once the ADC and convert to distance functions are operational,
