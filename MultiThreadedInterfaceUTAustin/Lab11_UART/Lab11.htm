@@ -3,9 +3,9 @@
 <title>Static Call Graph - [.\Lab11.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Lab11.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5.03 [Build 76]: Last Updated: Thu Mar 03 22:05:45 2022
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5.03 [Build 76]: Last Updated: Sat Apr 09 13:32:12 2022
 <BR><P>
-<H3>Maximum Stack Usage =         24 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
+<H3>Maximum Stack Usage =         44 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
 __rt_entry_main &rArr; main &rArr; UART_OutUDec &rArr; UART_ConvertUDec
 <P>
@@ -686,7 +686,7 @@ Global Symbols
 <P><STRONG><a name="[c1]"></a>__rt_entry_postsh_1</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, rtentry2.o(.ARM.Collect$$rtentry$$00000009))
 
 <P><STRONG><a name="[89]"></a>__rt_entry_main</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, rtentry2.o(.ARM.Collect$$rtentry$$0000000D))
-<BR><BR>[Stack]<UL><LI>Max Depth = 24 + Unknown Stack Size
+<BR><BR>[Stack]<UL><LI>Max Depth = 44 + Unknown Stack Size
 <LI>Call Chain = __rt_entry_main &rArr; main &rArr; UART_OutUDec &rArr; UART_ConvertUDec
 </UL>
 <BR>[Calls]<UL><LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;exit
@@ -805,14 +805,14 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup.o(RESET)
 </UL>
-<P><STRONG><a name="[9d]"></a>UART_ConvertDistance</STRONG> (Thumb, 160 bytes, Stack size 12 bytes, uart.o(i.UART_ConvertDistance))
-<BR><BR>[Stack]<UL><LI>Max Depth = 12<LI>Call Chain = UART_ConvertDistance
+<P><STRONG><a name="[9d]"></a>UART_ConvertDistance</STRONG> (Thumb, 228 bytes, Stack size 8 bytes, uart.o(i.UART_ConvertDistance))
+<BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = UART_ConvertDistance
 </UL>
 <BR>[Called By]<UL><LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_OutDistance
 </UL>
 
-<P><STRONG><a name="[a0]"></a>UART_ConvertUDec</STRONG> (Thumb, 252 bytes, Stack size 16 bytes, uart.o(i.UART_ConvertUDec))
-<BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = UART_ConvertUDec
+<P><STRONG><a name="[a0]"></a>UART_ConvertUDec</STRONG> (Thumb, 184 bytes, Stack size 36 bytes, uart.o(i.UART_ConvertUDec))
+<BR><BR>[Stack]<UL><LI>Max Depth = 36<LI>Call Chain = UART_ConvertUDec
 </UL>
 <BR>[Called By]<UL><LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_OutUDec
 </UL>
@@ -830,17 +830,18 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[a1]"></a>UART_Init</STRONG> (Thumb, 126 bytes, Stack size 0 bytes, uart.o(i.UART_Init))
+<P><STRONG><a name="[a1]"></a>UART_Init</STRONG> (Thumb, 138 bytes, Stack size 0 bytes, uart.o(i.UART_Init))
 <BR><BR>[Called By]<UL><LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
 <P><STRONG><a name="[9b]"></a>UART_OutChar</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, uart.o(i.UART_OutChar))
-<BR><BR>[Called By]<UL><LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_OutString
+<BR><BR>[Called By]<UL><LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
+<LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_OutString
 <LI><a href="#[99]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_InUDec
 </UL>
 
 <P><STRONG><a name="[9c]"></a>UART_OutDistance</STRONG> (Thumb, 18 bytes, Stack size 8 bytes, uart.o(i.UART_OutDistance))
-<BR><BR>[Stack]<UL><LI>Max Depth = 20<LI>Call Chain = UART_OutDistance &rArr; UART_ConvertDistance
+<BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = UART_OutDistance &rArr; UART_OutString
 </UL>
 <BR>[Calls]<UL><LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_OutString
 <LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_ConvertDistance
@@ -848,8 +849,8 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[9e]"></a>UART_OutString</STRONG> (Thumb, 22 bytes, Stack size 4 bytes, uart.o(i.UART_OutString))
-<BR><BR>[Stack]<UL><LI>Max Depth = 4<LI>Call Chain = UART_OutString
+<P><STRONG><a name="[9e]"></a>UART_OutString</STRONG> (Thumb, 26 bytes, Stack size 8 bytes, uart.o(i.UART_OutString))
+<BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = UART_OutString
 </UL>
 <BR>[Calls]<UL><LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_OutChar
 </UL>
@@ -859,7 +860,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[9f]"></a>UART_OutUDec</STRONG> (Thumb, 18 bytes, Stack size 8 bytes, uart.o(i.UART_OutUDec))
-<BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = UART_OutUDec &rArr; UART_ConvertUDec
+<BR><BR>[Stack]<UL><LI>Max Depth = 44<LI>Call Chain = UART_OutUDec &rArr; UART_ConvertUDec
 </UL>
 <BR>[Calls]<UL><LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_OutString
 <LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_ConvertUDec
@@ -867,14 +868,15 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[8a]"></a>main</STRONG> (Thumb, 58 bytes, Stack size 0 bytes, main.o(i.main))
-<BR><BR>[Stack]<UL><LI>Max Depth = 24 + Unknown Stack Size
+<P><STRONG><a name="[8a]"></a>main</STRONG> (Thumb, 74 bytes, Stack size 0 bytes, main.o(i.main))
+<BR><BR>[Stack]<UL><LI>Max Depth = 44 + Unknown Stack Size
 <LI>Call Chain = main &rArr; UART_OutUDec &rArr; UART_ConvertUDec
 </UL>
 <BR>[Calls]<UL><LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TExaS_Init
 <LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_OutUDec
 <LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_OutString
 <LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_OutDistance
+<LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_OutChar
 <LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_Init
 <LI><a href="#[99]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_InUDec
 <LI><a href="#[a2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EnableInterrupts

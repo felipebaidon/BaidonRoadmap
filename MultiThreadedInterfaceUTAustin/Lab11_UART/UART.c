@@ -122,12 +122,12 @@ char character;
 // Output String (NULL termination)
 // Input: pointer to a NULL-terminated string to be transferred
 // Output: none
-void UART_OutString(unsigned char *ptr){
+void UART_OutString(unsigned char buffer[]){
 // as part of Lab 11 implement this function
-	while(ptr)
+	unsigned int i  = 0;
+	while(buffer[i])
 	{
-		UART_OutChar(*ptr);
-		ptr++;
+		UART_OutChar(buffer[i++]);
 	}
 }
 
@@ -145,7 +145,72 @@ unsigned char String[10];
 //10000 to "**** "  any value larger than 9999 converted to "**** "
 void UART_ConvertUDec(unsigned long n){
 // as part of Lab 11 implement this function
-  
+	typedef struct
+	{
+	unsigned int thousands;
+	unsigned int hundreds;
+	unsigned int tens;
+	unsigned int unity;
+	}digits_t;
+	
+	unsigned int i=0;
+	unsigned int validNumber = 0;
+	unsigned int firstNotZero = 0;	
+	const unsigned int numberOfDigits = 4;
+	unsigned int *ptrToDigit;
+	digits_t digits;
+	
+	if(n <= 9999)
+	{
+		validNumber = 1;
+	}
+	
+	if(validNumber)
+	{
+		digits.thousands = n/1000;
+		n%=1000;
+		digits.hundreds = n/100;
+		n%=100;
+		digits.tens = n/10;
+		digits.unity = n%10;
+	
+		ptrToDigit = &digits.thousands;
+		
+		for(i= 0; i<numberOfDigits; i++)
+			{
+				if(!firstNotZero)
+				{
+					if(*ptrToDigit != 0)
+					{
+						String[i]= *ptrToDigit + '0';
+						firstNotZero = 1;
+					}
+					else if( i!= numberOfDigits -1)
+					{
+						String[i] = ' ';
+					}
+					else
+					{
+						String[i] = '0';
+					}
+				}
+				else
+				{
+					String[i]= *ptrToDigit + '0';
+				}
+				ptrToDigit++;
+			}
+	}
+	else
+	{
+		for( i= 0; i < numberOfDigits ; i++)
+		{
+			String[i] = '*';
+		}
+	}
+	
+	String[i++]= ' ';
+	String[i]= '\0';
 }
 
 //-----------------------UART_OutUDec-----------------------
@@ -171,7 +236,52 @@ void UART_OutUDec(unsigned long n){
 //10000 to "*.*** cm"  any value larger than 9999 converted to "*.*** cm"
 void UART_ConvertDistance(unsigned long n){
 // as part of Lab 11 implement this function
-  
+	unsigned int i= 0;
+	
+	if( n <= 9999)
+	{
+		if(n >= 1000) 
+		{
+			String[i++] = n/1000 + '0';
+			n %= 1000;
+		}
+		else 
+		{
+			String[i++] = '0';
+		}
+		String[i++] = '.';
+		
+		if(n >= 100)
+		{
+			String[i++] = n/100 + '0';
+			n %= 100;
+		}
+		else
+		{
+			String[i++] = '0';
+		}
+		if( n >= 10)
+		{
+			String[i++]= n/10 + '0';
+			n %= 10;
+		}
+		String[i++] = n + '0';
+				
+		String[i++] = ' ';
+		String[i++] = 'c';
+		String[i++] = 'm';
+		String[i] = '\0';
+	}
+	else
+	{
+		String[i++] = '*';
+		String[i++] = '.';
+		for(; i < 5;)
+		{
+			String[i++] = '*';
+		}
+	}
+	
 }
 
 //-----------------------UART_OutDistance-----------------------

@@ -15,16 +15,21 @@ void EnableInterrupts(void);  // Enable interrupts
 // do not edit this main
 // your job is to implement the UART_OutUDec UART_OutDistance functions 
 int main(void){ unsigned long n;
+	unsigned int i;
   TExaS_Init();             // initialize grader, set system clock to 80 MHz
   UART_Init();              // initialize UART
   EnableInterrupts();       // needed for TExaS
-	UART_OutString("Running Lab 11");	
+	UART_OutString((unsigned char*)"Running Lab 11");	
+	for( i= 'A'; i< 'Z' ; i ++)
+	{
+		UART_OutChar(i);
+	}
   while(1){
-    UART_OutString("\n\rInput:");
+    UART_OutString((unsigned char*)"\n\rInput:");
     n = UART_InUDec();
-    UART_OutString(" UART_OutUDec = ");
+    UART_OutString((unsigned char*)" UART_OutUDec = ");
     UART_OutUDec(n);     // your function
-    UART_OutString(",  UART_OutDistance ~ ");
+    UART_OutString((unsigned char*)",  UART_OutDistance ~ ");
     UART_OutDistance(n); // your function
   }
 }
