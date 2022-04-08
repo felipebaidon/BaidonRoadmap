@@ -46,6 +46,7 @@ void UART_Init(void){
   UART0_LCRH_R = (UART_LCRH_WLEN_8|UART_LCRH_FEN);
   UART0_CTL_R |= UART_CTL_UARTEN;       // enable UART
   GPIO_PORTA_AFSEL_R |= 0x03;           // enable alt funct on PA1,PA0
+	GPIO_PORTA_PUR_R |= 0X03;
   GPIO_PORTA_DEN_R |= 0x03;             // enable digital I/O on PA1,PA0
                                         // configure PA1,PA0 as UART0
   GPIO_PORTA_PCTL_R = (GPIO_PORTA_PCTL_R&0xFFFFFF00)+0x00000011;
@@ -121,9 +122,13 @@ char character;
 // Output String (NULL termination)
 // Input: pointer to a NULL-terminated string to be transferred
 // Output: none
-void UART_OutString(unsigned char buffer[]){
+void UART_OutString(unsigned char *ptr){
 // as part of Lab 11 implement this function
-
+	while(ptr)
+	{
+		UART_OutChar(*ptr);
+		ptr++;
+	}
 }
 
 unsigned char String[10];
