@@ -121,7 +121,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGDARM</Key>
-          <Name>(1010=-1,-1,-1,-1,0)(1007=-1,-1,-1,-1,0)(1008=-1,-1,-1,-1,0)(1009=-1,-1,-1,-1,0)(1012=-1,-1,-1,-1,0)(3004=996,118,1392,475,0)</Name>
+          <Name>(1010=-1,-1,-1,-1,0)(1007=-1,-1,-1,-1,0)(1008=-1,-1,-1,-1,0)(1009=-1,-1,-1,-1,0)(1012=-1,-1,-1,-1,0)(3004=1113,0,1509,357,1)</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -140,6 +140,18 @@
         </SetRegEntry>
       </TargetDriverDllRegistry>
       <Breakpoint/>
+      <WatchWindow1>
+        <Ww>
+          <count>0</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>i</ItemText>
+        </Ww>
+        <Ww>
+          <count>1</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>String</ItemText>
+        </Ww>
+      </WatchWindow1>
       <MemoryWindow1>
         <Mm>
           <WinNumber>1</WinNumber>
@@ -205,7 +217,7 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>272</TopLine>
+      <TopLine>273</TopLine>
       <CurrentLine>277</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\startup.s</PathWithFileName>
@@ -219,10 +231,10 @@
       <FileType>1</FileType>
       <tvExp>1</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>30</ColumnNumber>
+      <ColumnNumber>22</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>111</TopLine>
-      <CurrentLine>130</CurrentLine>
+      <TopLine>235</TopLine>
+      <CurrentLine>261</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\UART.c</PathWithFileName>
       <FilenameWithoutPath>UART.c</FilenameWithoutPath>
@@ -237,7 +249,7 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>7</TopLine>
+      <TopLine>5</TopLine>
       <CurrentLine>19</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\main.c</PathWithFileName>

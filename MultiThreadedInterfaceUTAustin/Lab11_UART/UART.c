@@ -125,7 +125,7 @@ char character;
 void UART_OutString(unsigned char buffer[]){
 // as part of Lab 11 implement this function
 	unsigned int i  = 0;
-	while(buffer[i])
+	while(buffer[i] != '\0')
 	{
 		UART_OutChar(buffer[i++]);
 	}
@@ -243,30 +243,34 @@ void UART_ConvertDistance(unsigned long n){
 		if(n >= 1000) 
 		{
 			String[i++] = n/1000 + '0';
+			String[i++] = '.';
 			n %= 1000;
-		}
-		else 
-		{
-			String[i++] = '0';
-		}
-		String[i++] = '.';
-		
-		if(n >= 100)
-		{
 			String[i++] = n/100 + '0';
 			n %= 100;
+			String[i++] = n/10 + '0';
+			n %= 10;
+			String[i++] =  n + '0';
+		}
+		else if ( n >= 100) 
+		{
+			String[i++] = '0';
+			String[i++] = '.';
+			String[i++] = n/100 + '0';
+			n %= 100;
+			String[i++] = n/10 + '0';
+			n %= 10;
+			String[i++] = n + '0';
 		}
 		else
 		{
 			String[i++] = '0';
-		}
-		if( n >= 10)
-		{
-			String[i++]= n/10 + '0';
+			String[i++] = '.';
+			String[i++] = '0';
+			String[i++] = n/10 + '0';
 			n %= 10;
+			String[i++] = n + '0';
 		}
-		String[i++] = n + '0';
-				
+		
 		String[i++] = ' ';
 		String[i++] = 'c';
 		String[i++] = 'm';
