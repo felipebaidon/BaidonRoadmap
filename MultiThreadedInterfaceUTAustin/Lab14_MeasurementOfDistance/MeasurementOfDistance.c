@@ -71,7 +71,8 @@ void SysTick_Init(){
 
 // executes every 25 ms, collects a sample, converts and stores in mailbox
 void SysTick_Handler(void){ 
-GPIO_PORTE_DATA_R ^= 0x01;
+	ADCdata = ADC0_In();
+	Flag = 1;
 }
 
 //-----------------------UART_ConvertDistance-----------------------
@@ -155,6 +156,15 @@ int main(void){
   while(1)
 		{ 
 // read mailbox
-// output to Nokia5110 LCD (optional)
+			if( Flag == 1)
+			{
+				Distance = Convert(ADCdata);
+				UART_ConvertDistance(Distance);
+				Nokia5110_Clear();
+				Nokia5110_SetCursor(0,0);
+				Nokia5110_OutString(String);
+				Flag = 0;
+			}
+
   }
 }
