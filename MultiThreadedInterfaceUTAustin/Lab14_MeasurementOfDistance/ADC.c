@@ -40,6 +40,12 @@ void ADC0_Init(void){
 	GPIO_PORTE_AFSEL_R |= 0X04;
 	GPIO_PORTE_DEN_R &= ~0X04;
 	GPIO_PORTE_AMSEL_R |= 0X04;
+	
+	//configure GPIO output for systick testing 
+	GPIO_PORTE_DIR_R |= 0x01;
+	GPIO_PORTE_AFSEL_R &= ~0x01;
+	GPIO_PORTE_AMSEL_R &= ~0x01;
+	GPIO_PORTE_DEN_R |= 0x01;
 
 	SYSCTL_RCGC0_R |= 0X00010000;
 	delay = SYSCTL_RCGC0_R;
