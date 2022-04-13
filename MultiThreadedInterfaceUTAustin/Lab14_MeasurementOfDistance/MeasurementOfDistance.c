@@ -33,138 +33,58 @@
 #include "..//tm4c123gh6pm.h"
 #include "Nokia5110.h"
 #include "TExaS.h"
+#include "conversion.h"
+#include "SysTick.h"
 
 #define A_CONSTANT	500
 #define B_CONSTANT	0
 
-void EnableInterrupts(void);  // Enable interrupts
+void EnableInterrupts(void);
 
-unsigned char String[10]; // null-terminated ASCII string
-unsigned long Distance;   // units 0.001 cm
-unsigned long ADCdata;    // 12-bit 0 to 4095 sample
-unsigned long Flag;       // 1 means valid Distance, 0 means Distance is empty
+unsigned char String[10];
+unsigned long Distance;   
+unsigned long ADCdata;    
+unsigned long Flag;       
 
-//********Convert****************
-// Convert a 12-bit binary ADC sample into a 32-bit unsigned
-// fixed-point distance (resolution 0.001 cm).  Calibration
-// data is gathered using known distances and reading the
-// ADC value measured on PE1.  
-// Overflow and dropout should be considered 
-// Input: sample  12-bit ADC sample
-// Output: 32-bit distance (resolution 0.001cm)
-unsigned long Convert(unsigned long sample){
-	unsigned long distance;
-	
-	distance = ((A_CONSTANT * sample) >> 10) + B_CONSTANT;
-	
-  return distance ;  // replace this line with real code
-}
-
-// Initialize SysTick interrupts to trigger at 40 Hz, 25 ms
-void SysTick_Init(){
-	NVIC_ST_CTRL_R = 0;
-	NVIC_ST_RELOAD_R |= 1999999; 
-	NVIC_ST_CURRENT_R = 0;
-	NVIC_SYS_PRI3_R = (NVIC_SYS_PRI3_R&0x00FFFFFF)|0x40000000;
-	NVIC_ST_CTRL_R |= 0X07;
-}
-
-// executes every 25 ms, collects a sample, converts and stores in mailbox
-void SysTick_Handler(void){ 
-	ADCdata = ADC0_In();
-	Flag = 1;
-}
-
-//-----------------------UART_ConvertDistance-----------------------
-// Converts a 32-bit distance into an ASCII string
-// Input: 32-bit number to be converted (resolution 0.001cm)
-// Output: store the conversion in global variable String[10]
-// Fixed format 1 digit, point, 3 digits, space, units, null termination
-// Examples
-//    4 to "0.004 cm"  
-//   31 to "0.031 cm" 
-//  102 to "0.102 cm" 
-// 2210 to "2.210 cm"
-//10000 to "*.*** cm"  any value larger than 9999 converted to "*.*** cm"
-void UART_ConvertDistance(unsigned long n){
-	
-	unsigned int i = 0;
-	
-	if( n <= 9999)
-	{
-		if(n >= 1000) 
-		{
-			String[i++] = n/1000 + '0';
-			String[i++] = '.';
-			n %= 1000;
-			String[i++] = n/100 + '0';
-			n %= 100;
-			String[i++] = n/10 + '0';
-			n %= 10;
-			String[i++] =  n + '0';
-		}
-		else if ( n >= 100) 
-		{
-			String[i++] = '0';
-			String[i++] = '.';
-			String[i++] = n/100 + '0';
-			n %= 100;
-			String[i++] = n/10 + '0';
-			n %= 10;
-			String[i++] = n + '0';
-		}
-		else
-		{
-			String[i++] = '0';
-			String[i++] = '.';
-			String[i++] = '0';
-			String[i++] = n/10 + '0';
-			n %= 10;
-			String[i++] = n + '0';
-		}
-		
-		String[i++] = ' ';
-		String[i++] = 'c';
-		String[i++] = 'm';
-		String[i] = '\0';
-	}
-	else
-	{
-		String[i++] = '*';
-		String[i++] = '.';
-		for(; i < 5;)
-		{
-			String[i++] = '*';
-		}
-	}
-
-}
-
-// once the ADC and convert to distance functions are operational,
-// you should use this main to build the final solution with interrupts and mailbox
 int main(void){ 
   volatile unsigned long delay;
+	unsigned long initialADCData;
+	unsigned long initialDistance;
+	unsigned int welcomeMsg = 1;
+	
   TExaS_Init(ADC0_AIN1_PIN_PE2, SSI0_Real_Nokia5110_Scope);
-// initialize ADC0, channel 1, sequencer 3
 	ADC0_Init();
-// initialize Nokia5110 LCD (optional)
 	Nokia5110_Init();
-// initialize SysTick for 40 Hz interrupts
 	SysTick_Init();
   EnableInterrupts();
-// print a welcome message  (optional)
+	
+	Nokia5110_Clear();
+	Nokia5110_SetCursor(0,0);
+	
+	initialADCData = ADC0_In();
+	initialDistance = Convert(initialADCData);
+	
+	Nokia5110_OutString((unsigned char*)"Measurement of Distance Program, Move Cursor to begin");
+	
   while(1)
 		{ 
-// read mailbox
 			if( Flag == 1)
 			{
 				Distance = Convert(ADCdata);
-				UART_ConvertDistance(Distance);
-				Nokia5110_Clear();
-				Nokia5110_SetCursor(0,0);
-				Nokia5110_OutString(String);
+				ConvertDistance(Distance);
+				if( (initialDistance != Distance) || !welcomeMsg)
+				{
+					welcomeMsg = 0;
+					Nokia5110_Clear();
+					Nokia5110_SetCursor(0,0);
+					Nokia5110_OutString(String);
+				}
 				Flag = 0;
 			}
-
   }
+}
+
+void SysTick_Handler(void){ 
+	ADCdata = ADC0_In();
+	Flag = 1;
 }

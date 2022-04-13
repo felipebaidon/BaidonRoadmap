@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Lab14.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Lab14.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5.03 [Build 76]: Last Updated: Tue Apr 12 18:01:51 2022
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5.03 [Build 76]: Last Updated: Wed Apr 13 21:30:40 2022
 <BR><P>
 <H3>Maximum Stack Usage =        120 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -755,7 +755,8 @@ Global Symbols
 <P><STRONG><a name="[d7]"></a>__semihosting_library_function</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, indicate_semi.o(.text), UNUSED)
 
 <P><STRONG><a name="[9c]"></a>ADC0_In</STRONG> (Thumb, 46 bytes, Stack size 0 bytes, adc.o(i.ADC0_In))
-<BR><BR>[Called By]<UL><LI><a href="#[c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SysTick_Handler
+<BR><BR>[Called By]<UL><LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
+<LI><a href="#[c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SysTick_Handler
 </UL>
 
 <P><STRONG><a name="[a6]"></a>ADC0_Init</STRONG> (Thumb, 178 bytes, Stack size 0 bytes, adc.o(i.ADC0_Init))
@@ -772,8 +773,14 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TExaS_Init
 </UL>
 
-<P><STRONG><a name="[a9]"></a>Convert</STRONG> (Thumb, 16 bytes, Stack size 0 bytes, measurementofdistance.o(i.Convert))
+<P><STRONG><a name="[a9]"></a>Convert</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, conversion.o(i.Convert))
 <BR><BR>[Called By]<UL><LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
+</UL>
+
+<P><STRONG><a name="[aa]"></a>ConvertDistance</STRONG> (Thumb, 160 bytes, Stack size 12 bytes, conversion.o(i.ConvertDistance))
+<BR><BR>[Stack]<UL><LI>Max Depth = 12<LI>Call Chain = ConvertDistance
+</UL>
+<BR>[Called By]<UL><LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
 <P><STRONG><a name="[93]"></a>Encrypt</STRONG> (Thumb, 92 bytes, Stack size 20 bytes, texas.o(i.Encrypt))
@@ -854,7 +861,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup.o(RESET)
 </UL>
-<P><STRONG><a name="[a7]"></a>SysTick_Init</STRONG> (Thumb, 60 bytes, Stack size 0 bytes, measurementofdistance.o(i.SysTick_Init))
+<P><STRONG><a name="[a7]"></a>SysTick_Init</STRONG> (Thumb, 38 bytes, Stack size 0 bytes, systick.o(i.SysTick_Init))
 <BR><BR>[Called By]<UL><LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
@@ -890,12 +897,6 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TExaS_Init
 </UL>
 
-<P><STRONG><a name="[aa]"></a>UART_ConvertDistance</STRONG> (Thumb, 362 bytes, Stack size 8 bytes, measurementofdistance.o(i.UART_ConvertDistance))
-<BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = UART_ConvertDistance
-</UL>
-<BR>[Called By]<UL><LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
-</UL>
-
 <P><STRONG><a name="[a3]"></a>checkADCconfiguration</STRONG> (Thumb, 150 bytes, Stack size 0 bytes, texas.o(i.checkADCconfiguration))
 <BR><BR>[Called By]<UL><LI><a href="#[51]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Timer5A_Handler
 </UL>
@@ -910,19 +911,20 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[51]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Timer5A_Handler
 </UL>
 
-<P><STRONG><a name="[8a]"></a>main</STRONG> (Thumb, 80 bytes, Stack size 0 bytes, measurementofdistance.o(i.main))
+<P><STRONG><a name="[8a]"></a>main</STRONG> (Thumb, 126 bytes, Stack size 0 bytes, measurementofdistance.o(i.main))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24 + Unknown Stack Size
 <LI>Call Chain = main &rArr; TExaS_Init &rArr; UART0_Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TExaS_Init
+<LI><a href="#[a7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SysTick_Init
 <LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Nokia5110_SetCursor
 <LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Nokia5110_OutString
 <LI><a href="#[98]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Nokia5110_Init
 <LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Nokia5110_Clear
-<LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC0_Init
-<LI><a href="#[aa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_ConvertDistance
-<LI><a href="#[a7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SysTick_Init
+<LI><a href="#[aa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ConvertDistance
 <LI><a href="#[a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Convert
+<LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC0_Init
+<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC0_In
 <LI><a href="#[a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EnableInterrupts
 </UL>
 <BR>[Called By]<UL><LI><a href="#[89]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__rt_entry_main

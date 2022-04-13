@@ -1,3 +1,5 @@
+#ifndef UART_H_
+#define UART_H_
 // uart.c
 // Runs on LM4F120 or TM4C123, 
 // for edX lab 13 
@@ -25,3 +27,6 @@ void UART_OutChar(unsigned char data);
 // Input: pointer to a NULL-terminated string to be transferred
 // Output: none
 void UART_OutString(unsigned char buffer[]);
+
+#endif
+

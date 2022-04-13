@@ -1,3 +1,6 @@
+#ifndef SYSTICK_H_
+#define SYSTICK_H_
+
 // SysTick.h
 // Runs on LM4F120 or TM4C123, 
 // for edX lab 13 
@@ -10,3 +13,6 @@
 
 // Initialize SysTick interrupts to trigger at 40 Hz, 25 ms
 void SysTick_Init(void);
+
+#endif
+

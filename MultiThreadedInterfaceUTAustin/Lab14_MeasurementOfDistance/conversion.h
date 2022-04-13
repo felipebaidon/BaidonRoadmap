@@ -1,3 +1,6 @@
+#ifndef CONVERSION_H_
+#define CONVERSION_H_
+
 // conversion.h
 // Runs on LM4F120 or TM4C123, 
 // for edX lab 14
@@ -5,7 +8,6 @@
 // Felipe Baidon
 // March 19, 2022
 
-extern unsigned char String[10];
 //-----------------------ConvertDistance-----------------------
 // Converts a 32-bit distance into an ASCII string
 // Input: 32-bit number to be converted (resolution 0.001cm)
@@ -28,4 +30,6 @@ void ConvertDistance(unsigned long n);
 // Input: sample  12-bit ADC sample
 // Output: 32-bit distance (resolution 0.001cm)
 unsigned long Convert(unsigned long sample);
+
+#endif
 

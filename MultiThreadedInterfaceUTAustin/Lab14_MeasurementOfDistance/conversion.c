@@ -7,6 +7,9 @@
 
 #include "conversion.h"
 
+//TODO: Include compilation switches for B constant with simulation and real board
+
+extern unsigned char String[10];
 //-----------------------ConvertDistance-----------------------
 // Converts a 32-bit distance into an ASCII string
 // Input: 32-bit number to be converted (resolution 0.001cm)
@@ -52,8 +55,6 @@ void ConvertDistance(unsigned long n){
 		String[i++] = ' ';
 		String[i++] = 'c';
 		String[i++] = 'm';
-	  String[i++] = '\r';
-	  String[i++] = '\n';
 		String[i] = '\0';
 }
 
@@ -66,8 +67,9 @@ void ConvertDistance(unsigned long n){
 // Input: sample  12-bit ADC sample
 // Output: 32-bit distance (resolution 0.001cm)
 unsigned long Convert(unsigned long sample){
-	const unsigned long A = 431;
-	const unsigned long B = 762;
+	const unsigned long A = 500;
+	const unsigned long B = 0; //for simulation
+	//const unsigned long B = 762; //for real board 
 	unsigned int distance = 0;
 	
 	distance = ((A*sample) >> 10) + B;
