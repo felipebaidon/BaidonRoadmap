@@ -3,3 +3,7 @@
 .\spaceinvaders.o: Nokia5110.h
 .\spaceinvaders.o: Random.h
 .\spaceinvaders.o: TExaS.h
+.\spaceinvaders.o: SysTick.h
+.\spaceinvaders.o: gpio.h
+.\spaceinvaders.o: dac.h
+.\spaceinvaders.o: timer.h
