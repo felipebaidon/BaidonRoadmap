@@ -17,5 +17,10 @@ void DAC_Init(void);
 	DAC-related output register */
 void DAC_out(unsigned int data);
 
-#endif DAC_H
 
+/* This function turns off the sound generation by writting
+		0 to the output
+*/
+void Sound_TurnOff(void);
+
+#endif

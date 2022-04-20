@@ -76,6 +76,9 @@
 #include "gpio.h"
 #include "dac.h"
 #include "timer.h"
+#include "adc.h"
+#include "conversion.h"
+#include "soundtest.h"
 
 void DisableInterrupts(void); // Disable interrupts
 void EnableInterrupts(void);  // Enable interrupts
@@ -84,8 +87,11 @@ void Delay100ms(unsigned long count); // time delay in 0.1 seconds
 void Delay10ms(void);
 
 
-extern unsigned long TimerCount;
-extern unsigned long Semaphore;
+unsigned long TimerCount;
+unsigned long Semaphore;
+unsigned long ADCdata;
+unsigned long Distance;
+unsigned char String[10];
 
 #define C_NOTE	523.251 //Hz
 
@@ -97,13 +103,16 @@ int main()
 	unsigned int currentFireButtonState, previousFireButtonState;
 	unsigned int currentSpecialButtonState, previousSpecialButtonState;
 	
+
 	TExaS_Init(SSI0_Real_Nokia5110_Scope);  // set system clock to 80 MHz
 	
 	GPIO_ButtonInit();
 	GPIO_LEDInit();
 	DAC_Init();
+	ADC0_Init();
 	SysTick_Init();
 	Timer2_Init();
+	Soundtest_init();
 	EnableInterrupts();
 	
 	Index=0;
@@ -112,45 +121,60 @@ int main()
 	
 	while(1)
 	{
-//		currentFireButtonState = FireButton_In();
-//		currentSpecialButtonState = SpecialButton_In();
-//		
-//		if( currentFireButtonState && !previousFireButtonState)
-//		{
-//			TurnOn_FireIndicator();
-//			EnableInterrupts();
-//			Sound_Init();
-//			Sound_SetTone(C_NOTE);
-//		}
-//		else if(!currentFireButtonState && previousFireButtonState)
-//		{
-//			TurnOff_FireIndicator();
-//			DisableInterrupts();
-//		}
-//		
-//		if( currentSpecialButtonState && !previousSpecialButtonState)
-//		{
-//			TurnOn_SpecialIndicator();
-//			EnableInterrupts();
-//			Sound_SetTone(C_NOTE);
-//		}
-//		else if(!currentSpecialButtonState && previousSpecialButtonState)
-//		{
-//			TurnOff_SpecialIndicator();
-//			DisableInterrupts();
-//		}
-//		
-//		previousFireButtonState = currentFireButtonState;
-//		previousSpecialButtonState = currentSpecialButtonState;
-//		Delay10ms();
+		currentFireButtonState = GPIO_FireButtonIn();
+		currentSpecialButtonState = GPIO_SpecialButtonIn();
+		
+		if( currentFireButtonState && !previousFireButtonState)
+		{
+			GPIO_TurnOnFireIndicator();
+			Soundtest_TurnOn();
+			SysTick_SetTone(C_NOTE);
+		}
+		else if(!currentFireButtonState && previousFireButtonState)
+		{
+			GPIO_TurnOffFireIndicator();
+			Soundtest_TurnOff();
+		}
+		
+		if( currentSpecialButtonState && !previousSpecialButtonState)
+		{
+			GPIO_TurnOnSpecialIndicator();
+			Soundtest_TurnOn();
+			SysTick_SetTone(C_NOTE);
+		}
+		else if(!currentSpecialButtonState && previousSpecialButtonState)
+		{
+			GPIO_TurnOffSpecialIndicator();
+			Soundtest_TurnOff();
+		}
+		
+		if( Semaphore == 1)
+		{
+				Distance = Convert(ADCdata);
+				ConvertDistance(Distance);
+				Semaphore = 0;
+		}
+		previousFireButtonState = currentFireButtonState;
+		previousSpecialButtonState = currentSpecialButtonState;
+		
+		Delay10ms();
 	}
 }
  void SysTick_Handler(void)
  {
-	 DAC_out(SineWave[Index]);
-	 Index = ++Index & 0xf;
-	 
+	 if(Soundtest_GetFlag() == 1)
+	 {
+		DAC_out(SineWave[Index]);
+		Index = ++Index & 0xf;
+	 }
  }
+ 
+ void Timer2A_Handler(void){ 
+  TIMER2_ICR_R = 0x00000001;   // acknowledge timer2A timeout
+  TimerCount++;
+	ADCdata= ADC0_In();
+  Semaphore = 1; // trigger	
+}
  
 void Delay100ms(unsigned long count){unsigned long volatile time;
   while(count>0){

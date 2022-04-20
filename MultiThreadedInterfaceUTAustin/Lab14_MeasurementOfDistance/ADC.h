@@ -40,4 +40,3 @@ void ADC0_Init(void);
 // Output: 12-bit result of ADC conversion
 unsigned long ADC0_In(void);
 #endif 
-

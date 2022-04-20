@@ -24,7 +24,7 @@ unsigned int GPIO_FireButtonIn(void);
 unsigned int GPIO_SpecialButtonIn(void);
 
 /* This function sets the pin used to drive the fire indicator */
-void GPIO_ToggleFireIndicator(void);
+void GPIO_TurnOnFireIndicator(void);
 
 /*This function resets the pin used to drive the fire indicator*/
 void GPIO_TurnOffFireIndicator(void);

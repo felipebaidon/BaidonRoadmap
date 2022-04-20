@@ -7,3 +7,6 @@
 .\spaceinvaders.o: gpio.h
 .\spaceinvaders.o: dac.h
 .\spaceinvaders.o: timer.h
+.\spaceinvaders.o: adc.h
+.\spaceinvaders.o: conversion.h
+.\spaceinvaders.o: soundtest.h

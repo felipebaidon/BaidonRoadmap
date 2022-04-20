@@ -9,6 +9,8 @@
 #include "..//tm4c123gh6pm.h"
 #include "dac.h"
 
+extern unsigned int SoundOn;
+
 /* This function writes to the DAC-related registers 
 		to configure the DAC */
 void DAC_Init(void)
@@ -31,4 +33,3 @@ void DAC_out(unsigned int data)
 {
 	GPIO_PORTB_DATA_R = data;
 }
-

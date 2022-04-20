@@ -63,9 +63,9 @@ unsigned int GPIO_SpecialButtonIn(void)
 }
 
 /* This function sets the pin used to drive the fire indicator */
-void GPIO_ToggleFireIndicator(void)
+void GPIO_TurnOnFireIndicator(void)
 {
-	GPIO_PORTB_DATA_R ^= 0X10;
+	GPIO_PORTB_DATA_R |= 0X10;
 }
 
 /*This function resets the pin used to drive the fire indicator*/
