@@ -113,6 +113,7 @@ int main()
 	SysTick_Init();
 	Timer2_Init();
 	Soundtest_init();
+	Nokia5110_Init();
 	EnableInterrupts();
 	
 	Index=0;
@@ -152,6 +153,9 @@ int main()
 		{
 				Distance = Convert(ADCdata);
 				ConvertDistance(Distance);
+				Nokia5110_Clear();
+				Nokia5110_SetCursor(0,0);
+				Nokia5110_OutString((char*)String);
 				Semaphore = 0;
 		}
 		previousFireButtonState = currentFireButtonState;
@@ -160,14 +164,14 @@ int main()
 		Delay10ms();
 	}
 }
- void SysTick_Handler(void)
- {
-	 if(Soundtest_GetFlag() == 1)
-	 {
-		DAC_out(SineWave[Index]);
-		Index = ++Index & 0xf;
-	 }
- }
+// void SysTick_Handler(void)
+// {
+//	 if(Soundtest_GetFlag() == 1)
+//	 {
+//		DAC_out(SineWave[Index]);
+//		Index = ++Index & 0xf;
+//	 }
+// }
  
  void Timer2A_Handler(void){ 
   TIMER2_ICR_R = 0x00000001;   // acknowledge timer2A timeout

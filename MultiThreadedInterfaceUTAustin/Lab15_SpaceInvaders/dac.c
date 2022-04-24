@@ -17,8 +17,8 @@ void DAC_Init(void)
 {
 	unsigned long delay;
 	
-	SYSCTL_RCGCGPIO_R |= 0X02;
-	delay = SYSCTL_RCGCGPIO_R;
+	SYSCTL_RCGC2_R |= SYSCTL_RCGC2_GPIOB;
+	delay = SYSCTL_RCGC2_R;
 	
 	GPIO_PORTB_DIR_R |= 0X0f;
 	GPIO_PORTB_AFSEL_R &= ~0X0f;

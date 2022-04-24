@@ -15,8 +15,8 @@ extern unsigned long Semaphore;
 /* This function is used to setup the timer2 module */
 void Timer2_Init(void){ 
   unsigned long volatile delay;
-  SYSCTL_RCGCTIMER_R |= 0x04;   // 0) activate timer2
-  delay = SYSCTL_RCGCTIMER_R;
+  SYSCTL_RCGC1_R |= 0x40000;   // 0) activate timer2
+  delay = SYSCTL_RCGC1_R;
   TimerCount = 0;
   Semaphore = 0;
   TIMER2_CTL_R = 0x00000000;    // 1) disable timer2A during setup

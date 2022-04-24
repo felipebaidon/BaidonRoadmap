@@ -13,8 +13,8 @@
 void GPIO_ButtonInit(void)
 {
 	unsigned long delay;
-	SYSCTL_RCGCGPIO_R |= 0X10;
-	delay = SYSCTL_RCGCGPIO_R;
+	SYSCTL_RCGC2_R |= SYSCTL_RCGC2_GPIOE;
+	delay = SYSCTL_RCGC2_R;
 	GPIO_PORTE_DIR_R &= ~0X3;
 	GPIO_PORTE_AFSEL_R &= ~0X3;
 	GPIO_PORTE_AMSEL_R &= ~0X3;
@@ -30,8 +30,8 @@ void GPIO_LEDInit(void)
 {
 	unsigned long delay;
 	
-	SYSCTL_RCGCGPIO_R |= 0X02;
-	delay = SYSCTL_RCGCGPIO_R;
+	SYSCTL_RCGC2_R |= SYSCTL_RCGC2_GPIOB;
+	delay = SYSCTL_RCGC2_R;
 	
 	GPIO_PORTB_DIR_R |= 0X30;
 	GPIO_PORTB_AFSEL_R &= ~0X30;
