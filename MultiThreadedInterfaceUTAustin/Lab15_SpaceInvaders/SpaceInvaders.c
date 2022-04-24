@@ -78,7 +78,7 @@
 #include "timer.h"
 #include "adc.h"
 #include "conversion.h"
-#include "soundtest.h"
+#include "sound.h"
 
 void DisableInterrupts(void); // Disable interrupts
 void EnableInterrupts(void);  // Enable interrupts
@@ -96,27 +96,22 @@ unsigned char String[10];
 #define C_NOTE	523.251 //Hz
 
 const unsigned char SineWave[SIZE_OF_SINE_TABLE] = {4,5,6,7,7,7,6,5,4,3,2,1,1,1,2,3};
-unsigned int Index;
 
 int main()
 {	
 	unsigned int currentFireButtonState, previousFireButtonState;
 	unsigned int currentSpecialButtonState, previousSpecialButtonState;
 	
-
 	TExaS_Init(SSI0_Real_Nokia5110_Scope);  // set system clock to 80 MHz
 	
 	GPIO_ButtonInit();
 	GPIO_LEDInit();
-	DAC_Init();
 	ADC0_Init();
-	SysTick_Init();
+	Sound_Init();
 	Timer2_Init();
-	Soundtest_init();
 	Nokia5110_Init();
 	EnableInterrupts();
 	
-	Index=0;
 	previousFireButtonState = GPIO_FireButtonIn();
 	previousSpecialButtonState = GPIO_SpecialButtonIn();
 	
@@ -128,25 +123,21 @@ int main()
 		if( currentFireButtonState && !previousFireButtonState)
 		{
 			GPIO_TurnOnFireIndicator();
-			Soundtest_TurnOn();
-			SysTick_SetTone(C_NOTE);
+			Sound_Shoot();
 		}
 		else if(!currentFireButtonState && previousFireButtonState)
 		{
 			GPIO_TurnOffFireIndicator();
-			Soundtest_TurnOff();
 		}
 		
 		if( currentSpecialButtonState && !previousSpecialButtonState)
 		{
 			GPIO_TurnOnSpecialIndicator();
-			Soundtest_TurnOn();
-			SysTick_SetTone(C_NOTE);
+			Sound_Shoot();
 		}
 		else if(!currentSpecialButtonState && previousSpecialButtonState)
 		{
 			GPIO_TurnOffSpecialIndicator();
-			Soundtest_TurnOff();
 		}
 		
 		if( Semaphore == 1)
@@ -164,14 +155,6 @@ int main()
 		Delay10ms();
 	}
 }
-// void SysTick_Handler(void)
-// {
-//	 if(Soundtest_GetFlag() == 1)
-//	 {
-//		DAC_out(SineWave[Index]);
-//		Index = ++Index & 0xf;
-//	 }
-// }
  
  void Timer2A_Handler(void){ 
   TIMER2_ICR_R = 0x00000001;   // acknowledge timer2A timeout

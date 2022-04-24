@@ -29,7 +29,7 @@ void DAC_Init(void)
 
 /*This function retrieves the data obtained written to the
 	DAC-related output register */
-void DAC_out(unsigned int data)
+void DAC_Out(unsigned int data)
 {
 	GPIO_PORTB_DATA_R = data;
 }

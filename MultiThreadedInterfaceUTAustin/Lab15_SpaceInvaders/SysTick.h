@@ -11,15 +11,14 @@
 /* Global defines */
 #define SIZE_OF_SINE_TABLE	16
 
-/* This function writes to the system control registers to setup
-	the SysTick.
-*/
-void SysTick_Init(void);
+/* Global Typedefs*/
+typedef void(*FuncPtr)(void);
 
-/* This function is used on run time to setup a different frequency depending on the sound 
-		to be played, it converts the period to the reload value to be assed on to the Sound_SetPeriod 
-		function*/
-void SysTick_SetTone(double period);
+/* This function writes to the system control registers to setup
+	the SysTick. it receives the handler to a function to be executed in 
+	the interrupt
+*/
+void SysTick_Init(FuncPtr callback, unsigned long period);
 
 #endif
 

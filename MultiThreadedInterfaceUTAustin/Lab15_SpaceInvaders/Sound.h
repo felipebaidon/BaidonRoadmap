@@ -21,5 +21,10 @@ void Sound_Fastinvader3(void);
 void Sound_Fastinvader4(void);
 void Sound_Highpitch(void);
 
+/* This function turns off the sound generation by writting
+		0 to the output
+*/
+void Sound_TurnOff(void);
+
 #endif
 

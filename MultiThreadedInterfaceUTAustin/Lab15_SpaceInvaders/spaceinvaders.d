@@ -9,4 +9,4 @@
 .\spaceinvaders.o: timer.h
 .\spaceinvaders.o: adc.h
 .\spaceinvaders.o: conversion.h
-.\spaceinvaders.o: soundtest.h
+.\spaceinvaders.o: sound.h
