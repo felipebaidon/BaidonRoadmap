@@ -10,3 +10,4 @@
 .\spaceinvaders.o: adc.h
 .\spaceinvaders.o: conversion.h
 .\spaceinvaders.o: sound.h
+.\spaceinvaders.o: GameEngine.h

@@ -79,6 +79,7 @@
 #include "adc.h"
 #include "conversion.h"
 #include "sound.h"
+#include "GameEngine.h"
 
 void DisableInterrupts(void); // Disable interrupts
 void EnableInterrupts(void);  // Enable interrupts
@@ -87,8 +88,12 @@ void Delay100ms(unsigned long count); // time delay in 0.1 seconds
 void Delay10ms(void);
 
 
-unsigned long TimerCount;
-unsigned long Semaphore;
+unsigned long Timer0Count;
+unsigned long Timer2Count;
+
+unsigned long ADCReady;
+unsigned long RefreshScreen;
+
 unsigned long ADCdata;
 unsigned long Distance;
 unsigned char String[10];
@@ -109,14 +114,17 @@ int main()
 	ADC0_Init();
 	Sound_Init();
 	Timer2_Init();
-	Nokia5110_Init();
+	Timer0_Init();
+	GameEngine_InitDisplay();
 	EnableInterrupts();
 	
 	previousFireButtonState = GPIO_FireButtonIn();
 	previousSpecialButtonState = GPIO_SpecialButtonIn();
 	
-	while(1)
+	
+	while(GameEngine_GetEnemiesLife())
 	{
+		
 		currentFireButtonState = GPIO_FireButtonIn();
 		currentSpecialButtonState = GPIO_SpecialButtonIn();
 		
@@ -140,27 +148,44 @@ int main()
 			GPIO_TurnOffSpecialIndicator();
 		}
 		
-		if( Semaphore == 1)
+		if( ADCReady == 1)
 		{
 				Distance = Convert(ADCdata);
 				ConvertDistance(Distance);
-				Nokia5110_Clear();
-				Nokia5110_SetCursor(0,0);
-				Nokia5110_OutString((char*)String);
-				Semaphore = 0;
+//				Nokia5110_Clear();
+//				Nokia5110_SetCursor(0,0);
+//				Nokia5110_OutString((char*)String);
+				ADCReady = 0;
 		}
+		
+		if(RefreshScreen == 1)
+		{
+			GameEngine_RefreshScreen();
+			RefreshScreen = 0;
+		}
+		
 		previousFireButtonState = currentFireButtonState;
 		previousSpecialButtonState = currentSpecialButtonState;
 		
 		Delay10ms();
 	}
+	
+	GameEngine_DisplayGameOver();
 }
  
  void Timer2A_Handler(void){ 
   TIMER2_ICR_R = 0x00000001;   // acknowledge timer2A timeout
-  TimerCount++;
+  Timer2Count++;
 	ADCdata= ADC0_In();
-  Semaphore = 1; // trigger	
+  ADCReady = 1; // trigger	
+}
+ 
+void Timer0A_Handler(void)
+{
+	TIMER0_ICR_R = 0x00000001;
+  Timer0Count++;
+	GameEngine_MoveEnemies();
+  RefreshScreen = 1; // trigger	
 }
  
 void Delay100ms(unsigned long count){unsigned long volatile time;
