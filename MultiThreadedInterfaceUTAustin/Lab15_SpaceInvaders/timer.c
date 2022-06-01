@@ -7,20 +7,34 @@
 // April 18, 2022
 
 #include "..//tm4c123gh6pm.h"
+#include "timer.h"
 
+/* Global extern variables */
+unsigned long Timer_EnemiesPositionUpdated;
 
-extern unsigned long Timer2Count;
-extern unsigned long ADCReady;
+/*File scope function prototypes*/
+static void Timer2_Init(void);
+static void Timer0_Init(void);
+
+Callback Timer_ReadInput;
+Callback Timer_MoveInvaders;
+
+void Timer_InitTimers(Callback senseInput, Callback refreshPosition)
+{
+	Timer2_Init();
+	Timer_ReadInput = senseInput;
+	Timer0_Init();
+	Timer_MoveInvaders = refreshPosition;
+	
+}
 
 /* This function is used to setup the timer2 module
 		which is used to drive the sense of movement on the cursor through
 		the ADC*/
-void Timer2_Init(void){ 
+static void Timer2_Init(void){ 
   unsigned long volatile delay;
   SYSCTL_RCGC1_R |= 0x40000;   // 0) activate timer2
   delay = SYSCTL_RCGC1_R;
-  Timer2Count = 0;
-  ADCReady = 0;
   TIMER2_CTL_R = 0x00000000;    // 1) disable timer2A during setup
   TIMER2_CFG_R = 0x00000000;    // 2) configure for 32-bit mode
   TIMER2_TAMR_R = 0x00000002;   // 3) configure for periodic mode, default down-count settings
@@ -37,7 +51,7 @@ void Timer2_Init(void){
 
 /* This function is used to setup the timer0 module which is used
 		to refresh the position of the space invaders in the screen */
-void Timer0_Init(void)
+static void Timer0_Init(void)
 {
 	unsigned long delay;
 	SYSCTL_RCGC1_R |= SYSCTL_RCGC1_TIMER0;
@@ -53,6 +67,18 @@ void Timer0_Init(void)
 	NVIC_EN0_R = 1<<19;           // 9) enable IRQ 35 in NVIC
   TIMER0_CTL_R = 0x00000001;    // 10) enable timer0A
 	
+}
+
+ void Timer2A_Handler(void){ 
+  TIMER2_ICR_R = 0x00000001;   // acknowledge timer2A timeout
+	Timer_ReadInput(); 
+}
+ 
+void Timer0A_Handler(void)
+{
+	TIMER0_ICR_R = 0x00000001;
+	Timer_MoveInvaders();;
+  Timer_EnemiesPositionUpdated = 1;
 }
 
 

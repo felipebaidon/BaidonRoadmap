@@ -497,26 +497,6 @@
               <FileName>graphics.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\graphics.c</FilePath>
-            </File>
-            <File>
-              <FileName>SysTick.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\SysTick.c</FilePath>
-            </File>
-            <File>
-              <FileName>timer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\timer.c</FilePath>
-            </File>
-            <File>
-              <FileName>Sound.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Sound.c</FilePath>
-            </File>
-            <File>
-              <FileName>sprite.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\sprite.c</FilePath>
               <FileOption>
                 <CommonProperty>
                   <UseCPPCompiler>2</UseCPPCompiler>
@@ -560,6 +540,21 @@
                   </Cads>
                 </FileArmAds>
               </FileOption>
+            </File>
+            <File>
+              <FileName>SysTick.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\SysTick.c</FilePath>
+            </File>
+            <File>
+              <FileName>timer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\timer.c</FilePath>
+            </File>
+            <File>
+              <FileName>Sound.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Sound.c</FilePath>
             </File>
             <File>
               <FileName>sprites.c</FileName>
@@ -615,6 +610,16 @@
               <FileName>Sound.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\Sound.h</FilePath>
+            </File>
+            <File>
+              <FileName>TExaS.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\TExaS.h</FilePath>
+            </File>
+            <File>
+              <FileName>GameEngine.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\GameEngine.h</FilePath>
             </File>
           </Files>
         </Group>

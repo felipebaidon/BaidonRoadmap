@@ -9,15 +9,15 @@
 // Felipe Baidon
 // April 18, 2022
 
+/*Global Typedefs*/
+typedef void (*Callback)(void);
 
-/* This function is used to setup the timer2 module
-		which is used to drive the sense of movement on the cursor through
-		the ADC*/
-void Timer2_Init(void);
+/* Global Variables*/
+extern unsigned long Timer_EnemiesPositionUpdated;
 
-/* This function is used to setup the timer0 module which is used
-		to refresh the position of the space invaders in the screen */
-void Timer0_Init(void);
+/* This function is used to setup the timer2 and timer0 modules
+*/
+void Timer_InitTimers(Callback senseInput, Callback refreshPosition);
 
 #endif
 

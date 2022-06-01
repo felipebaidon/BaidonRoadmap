@@ -566,6 +566,11 @@
               <FileType>1</FileType>
               <FilePath>.\sprites.c</FilePath>
             </File>
+            <File>
+              <FileName>GameEngine.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\GameEngine.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -610,6 +615,11 @@
               <FileName>Sound.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\Sound.h</FilePath>
+            </File>
+            <File>
+              <FileName>TExaS.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\TExaS.h</FilePath>
             </File>
           </Files>
         </Group>

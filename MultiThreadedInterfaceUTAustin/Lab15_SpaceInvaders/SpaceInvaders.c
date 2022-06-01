@@ -69,17 +69,14 @@
 // back light    (LED, pin 8) not connected, consists of 4 white LEDs which draw ~80mA total
 
 #include "..//tm4c123gh6pm.h"
-#include "Nokia5110.h"
 #include "Random.h"
 #include "TExaS.h"
-#include "SysTick.h"
-#include "gpio.h"
-#include "dac.h"
 #include "timer.h"
-#include "adc.h"
 #include "conversion.h"
-#include "sound.h"
 #include "GameEngine.h"
+
+#include "Sprites.h"
+#include "Nokia5110.h"
 
 void DisableInterrupts(void); // Disable interrupts
 void EnableInterrupts(void);  // Enable interrupts
@@ -87,106 +84,23 @@ void EnableInterrupts(void);  // Enable interrupts
 void Delay100ms(unsigned long count); // time delay in 0.1 seconds
 void Delay10ms(void);
 
-
-unsigned long Timer0Count;
-unsigned long Timer2Count;
-
-unsigned long ADCReady;
-unsigned long RefreshScreen;
-
-unsigned long ADCdata;
 unsigned long Distance;
 unsigned char String[10];
 
-#define C_NOTE	523.251 //Hz
-
-const unsigned char SineWave[SIZE_OF_SINE_TABLE] = {4,5,6,7,7,7,6,5,4,3,2,1,1,1,2,3};
-
 int main()
-{	
-	unsigned int currentFireButtonState, previousFireButtonState;
-	unsigned int currentSpecialButtonState, previousSpecialButtonState;
-	
-	TExaS_Init(SSI0_Real_Nokia5110_Scope);  // set system clock to 80 MHz
-	
-	GPIO_ButtonInit();
-	GPIO_LEDInit();
-	ADC0_Init();
-	Sound_Init();
-	Timer2_Init();
-	Timer0_Init();
-	GameEngine_InitDisplay();
+{		
+	TExaS_Init(SSI0_Real_Nokia5110_Scope);  // set system clock to 80 
+	GameEngine_Init();
 	EnableInterrupts();
 	
-	previousFireButtonState = GPIO_FireButtonIn();
-	previousSpecialButtonState = GPIO_SpecialButtonIn();
-	
-	
-	while(GameEngine_GetEnemiesLife())
+	while(1)
 	{
-		
-		currentFireButtonState = GPIO_FireButtonIn();
-		currentSpecialButtonState = GPIO_SpecialButtonIn();
-		
-		if( currentFireButtonState && !previousFireButtonState)
-		{
-			GPIO_TurnOnFireIndicator();
-			Sound_Shoot();
-		}
-		else if(!currentFireButtonState && previousFireButtonState)
-		{
-			GPIO_TurnOffFireIndicator();
-		}
-		
-		if( currentSpecialButtonState && !previousSpecialButtonState)
-		{
-			GPIO_TurnOnSpecialIndicator();
-			Sound_Shoot();
-		}
-		else if(!currentSpecialButtonState && previousSpecialButtonState)
-		{
-			GPIO_TurnOffSpecialIndicator();
-		}
-		
-		if( ADCReady == 1)
-		{
-				Distance = Convert(ADCdata);
-				ConvertDistance(Distance);
-//				Nokia5110_Clear();
-//				Nokia5110_SetCursor(0,0);
-//				Nokia5110_OutString((char*)String);
-				ADCReady = 0;
-		}
-		
-		if(RefreshScreen == 1)
-		{
-			GameEngine_RefreshScreen();
-			RefreshScreen = 0;
-		}
-		
-		previousFireButtonState = currentFireButtonState;
-		previousSpecialButtonState = currentSpecialButtonState;
-		
+		GameEngine_MainEngine();
+	
 		Delay10ms();
 	}
-	
-	GameEngine_DisplayGameOver();
 }
  
- void Timer2A_Handler(void){ 
-  TIMER2_ICR_R = 0x00000001;   // acknowledge timer2A timeout
-  Timer2Count++;
-	ADCdata= ADC0_In();
-  ADCReady = 1; // trigger	
-}
- 
-void Timer0A_Handler(void)
-{
-	TIMER0_ICR_R = 0x00000001;
-  Timer0Count++;
-	GameEngine_MoveEnemies();
-  RefreshScreen = 1; // trigger	
-}
  
 void Delay100ms(unsigned long count){unsigned long volatile time;
   while(count>0){

@@ -6,9 +6,12 @@
 // Felipe Baidon
 // April 19, 2022
 
-#include "ADC.h"
+#include "adc.h"
 #include "..//tm4c123gh6pm.h"
 
+/*File Scope variables*/
+
+/* File Scope defines*/
 #define ADC_SENSE_INPUT		0x04
 #define MAX_ADC0_SPD_125	0x300
 
@@ -51,17 +54,18 @@ void ADC0_Init(void){
 /*------------ADC0_In------------
 	Busy-wait Analog to digital conversion
 	Input: none
- Output: 12-bit result of ADC conversion*/
+	Output: none*/
 unsigned long ADC0_In(void){  
-	unsigned int sample;
+	
+	unsigned long data;
 	
 	//initiate sampling ADCPSSI
 	ADC0_PSSI_R |= 0x08;
 	while((ADC0_RIS_R&0x08)== 0){};
-	sample = ADC0_SSFIFO3_R & 0xfff;
+	data = ADC0_SSFIFO3_R & 0xfff;
   ADC0_ISC_R |= 0X08;
 		
-  return sample;
+	return data;	
 }
 
 

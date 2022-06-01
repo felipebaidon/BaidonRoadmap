@@ -1,1 +1,11 @@
 left progress in refactoring space invaders file, moving all the related data to gameengine module 27/04
+left progress in refactoring space invaders file to sense the input in the game engine, purpose is to move the GameEngine_Sense
+to be called in a timer
+
+16:20 - 16:50 Implementing game over when invaders reach the bottom of the display
+16:50 - 17:20 investigate how BMP arrays work
+17:20 - 17:50 Implemented functionality to destroy the invaders
+17:50 - 18:20 Implementing invaders kill function
+18:20 - 19:00 Implementing invaders kill function
+
+Could activate interrupts in ADC, to avoid passing the ADC function to the timer interrupts

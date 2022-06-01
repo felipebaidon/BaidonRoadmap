@@ -10,7 +10,7 @@
 
 /* This function initializes the GPIO pins that are used
 	as Button inputs*/
-void GPIO_ButtonInit(void)
+void GPIO_ButtonsInit(void)
 {
 	unsigned long delay;
 	SYSCTL_RCGC2_R |= SYSCTL_RCGC2_GPIOE;
@@ -26,7 +26,7 @@ void GPIO_ButtonInit(void)
 
 /* This function initializes the GPIO pins that are
 		used as ouputs to drive the LEDs*/
-void GPIO_LEDInit(void)
+void GPIO_IndicatorInit(void)
 {
 	unsigned long delay;
 	

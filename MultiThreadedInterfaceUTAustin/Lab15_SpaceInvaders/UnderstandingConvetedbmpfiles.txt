@@ -1,0 +1,9 @@
+first 14 bytes are header information
+first 2 bytes are indentifiers for Bitmap file 42 4d = BM
+next byte is the size of the file
+Starting at 10 is the offset of the file
+width starts in position 18
+height starts in position 22
+
+next 40 are called the deep header
+

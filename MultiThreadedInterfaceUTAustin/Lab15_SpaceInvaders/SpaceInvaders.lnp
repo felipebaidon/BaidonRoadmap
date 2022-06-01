@@ -8,7 +8,6 @@
 ".\conversion.o"
 ".\dac.o"
 ".\gpio.o"
-".\graphics.o"
 ".\systick.o"
 ".\timer.o"
 ".\sound.o"

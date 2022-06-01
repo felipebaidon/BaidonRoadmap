@@ -1,13 +1,9 @@
 .\spaceinvaders.o: SpaceInvaders.c
 .\spaceinvaders.o: ..//tm4c123gh6pm.h
-.\spaceinvaders.o: Nokia5110.h
 .\spaceinvaders.o: Random.h
 .\spaceinvaders.o: TExaS.h
-.\spaceinvaders.o: SysTick.h
-.\spaceinvaders.o: gpio.h
-.\spaceinvaders.o: dac.h
 .\spaceinvaders.o: timer.h
-.\spaceinvaders.o: adc.h
 .\spaceinvaders.o: conversion.h
-.\spaceinvaders.o: sound.h
 .\spaceinvaders.o: GameEngine.h
+.\spaceinvaders.o: Sprites.h
+.\spaceinvaders.o: Nokia5110.h

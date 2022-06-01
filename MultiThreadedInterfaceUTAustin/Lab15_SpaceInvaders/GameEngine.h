@@ -7,22 +7,12 @@
 #ifndef GAMEENGINE_H_
 #define GAMEENGINE_H_
 
-/*------------GameEngine_InitDisplay------------
-	This function initializes and draws the videogame
-	main screen 
+/*------------GameEngine_InitHardware------------
+	This function initializes the peripherals used to setup
+	the buttons, indicators, sound and joystick
 	Input: none
-	Output: none
-	*/
-void GameEngine_InitDisplay(void);
-
-
-/*------------GameEngine_MoveEnemies------------
-	This function updates the position of the 
-	space invaders
-	Input: none
-	Output: none
-	*/
-void GameEngine_MoveEnemies(void);
+	Output: none*/
+void GameEngine_Init(void);
 
 /*------------GameEngine_RefreshScreen------------
 	This function draws the screen at a certain rate, monitored by
@@ -40,13 +30,10 @@ void GameEngine_RefreshScreen(void);
 	*/
 unsigned int GameEngine_GetEnemiesLife(void);
 
-/*------------GameEngine_DisplayGameOver------------
-	This function writes game over to the nokia display whenever
-	all the space invaders have been killed
+/*------------GameEngine_MainEngine------------
+	This function handles the Main game Engine
 	Input: none
-	Output: none
-*/
-void GameEngine_DisplayGameOver(void);
-
+	Output: none*/
+void GameEngine_MainEngine(void);
 
 #endif

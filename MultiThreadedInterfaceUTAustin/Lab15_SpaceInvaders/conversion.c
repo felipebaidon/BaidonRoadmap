@@ -67,8 +67,8 @@ void ConvertDistance(unsigned long n){
 // Input: sample  12-bit ADC sample
 // Output: 32-bit distance (resolution 0.001cm)
 unsigned long Convert(unsigned long sample){
-	const unsigned long A = 500;
-	const unsigned long B = 0; //for simulation
+	const unsigned long A = 16; //to syncronize with screen length 
+	const unsigned long B = 2; //for simulation
 	//const unsigned long B = 762; //for real board 
 	unsigned int distance = 0;
 	

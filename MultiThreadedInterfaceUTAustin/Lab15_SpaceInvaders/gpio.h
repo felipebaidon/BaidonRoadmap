@@ -10,11 +10,11 @@
 
 /* This function initializes the GPIO pins that are used
 	as Button inputs*/
-void GPIO_ButtonInit(void);
+void GPIO_ButtonsInit(void);
 
 /* This function initializes the GPIO pins that are
 		used as ouputs to drive the LEDs*/
-void GPIO_LEDInit(void);
+void GPIO_IndicatorInit(void);
 
 /* This function reads the state of the PE0 and returns it */
 unsigned int GPIO_FireButtonIn(void);
