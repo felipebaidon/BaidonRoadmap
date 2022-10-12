@@ -34,6 +34,7 @@ Button_t GameEngine_FireButton;
 Button_t GameEngine_SpecialButton;
 unsigned long GameEngine_ADCData;
 unsigned long GameEngine_ShipPosition;
+unsigned int GameEngine_CreateExplosion;
 
 /* Function prototypes*/
 static void GameEngine_InitDisplay(void);
@@ -58,6 +59,7 @@ void GameEngine_Init(void)
 {
 	GameEngine_ADCData = 0;
 	GameEngine_ShipPosition = 0;
+	GameEngine_CreateExplosion = 0;
 	
 	GPIO_ButtonsInit();	
 	GPIO_IndicatorInit();
@@ -258,11 +260,15 @@ void GameEngine_DestroyInvader(void)
 	{
 		for( i = 0; i < NUMBER_OF_ENEMIES ; i++)
 		{
-			if((((Missile.y + MISSILE_HEIGHT)< Enemy[i].y) && (Missile.y < (Enemy[i].y + ENEMY_HEIGHT)))
-				&& ((Missile.x > Enemy[i].x) && (Missile.y < Enemy[i].x - ENEMY_WIDTH)))
+			if((((Missile.y - MISSILE_HEIGHT)< Enemy[i].y) && ((Missile.y - MISSILE_HEIGHT) > (Enemy[i].y - ENEMY_HEIGHT)))
+				&& ((Missile.x > Enemy[i].x) && (Missile.x < (Enemy[i].x + ENEMY_WIDTH))) && Enemy[i].life)
 			{
 				Missile.life = 0;
 				Enemy[i].life = 0;
+				GameEngine_CreateExplosion = 1;
+				Explosion.x = Enemy[i].x;
+				Explosion.y = Enemy[i].y;
+				Explosion.life = 1;
 				break;
 			}
 		}

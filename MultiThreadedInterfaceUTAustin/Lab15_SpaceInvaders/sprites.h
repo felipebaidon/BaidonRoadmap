@@ -11,8 +11,8 @@ extern const unsigned char SmallEnemy30PointA[];
 
 
 struct State {
-  unsigned long x;      // x coordinate
-  unsigned long y;      // y coordinate
+  signed long x;      // x coordinate
+  signed long y;      // y coordinate
   const unsigned char *image; // ptr->image
   long life;            // 0=dead, 1=alive
 };
@@ -21,7 +21,8 @@ typedef struct State STyp;
 
 extern STyp Sprites_PlayerShip;
 extern STyp Enemy[NUMBER_OF_ENEMIES];
-extern STyp Missile; 
+extern STyp Missile;
+extern STyp Explosion;
 
 
 void Sprites_Init(unsigned long shipPosition);

@@ -93,12 +93,16 @@ int main()
 	GameEngine_Init();
 	EnableInterrupts();
 	
-	while(1)
+	while(GameEngine_GetEnemiesLife())
 	{
 		GameEngine_MainEngine();
 	
 		Delay10ms();
 	}
+	
+	Nokia5110_Clear();
+	Nokia5110_SetCursor(0,0);
+	Nokia5110_OutString((char*)"Success!!");
 }
  
  
