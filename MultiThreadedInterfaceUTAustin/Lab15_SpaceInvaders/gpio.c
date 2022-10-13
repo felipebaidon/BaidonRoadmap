@@ -8,6 +8,8 @@
 
 #include "..//tm4c123gh6pm.h"
 
+unsigned int GPIO_Test;
+
 /* This function initializes the GPIO pins that are used
 	as Button inputs*/
 void GPIO_ButtonsInit(void)
@@ -22,6 +24,18 @@ void GPIO_ButtonsInit(void)
 	GPIO_PORTE_PDR_R |= 0X3;
 	GPIO_PORTE_DEN_R |= 0X3;
 	
+	GPIO_PORTE_IM_R &= ~0XF;
+	GPIO_PORTE_IS_R &= ~0XF;
+	GPIO_PORTE_IBE_R &= ~0XF;
+	GPIO_PORTE_IEV_R &= ~0XF;
+	GPIO_PORTE_IEV_R |=  0x3;
+	GPIO_PORTE_ICR_R |= 0X3;
+	GPIO_PORTE_IM_R |= 0X3;
+	
+	NVIC_PRI1_R = NVIC_PRI1_R&0xFFFFFF00; //priority 0
+	NVIC_EN0_R = 1<<4;           // 9) enable IRQ 21 in NVIC
+	
+	GPIO_Test = 0;
 }
 
 /* This function initializes the GPIO pins that are
@@ -38,6 +52,7 @@ void GPIO_IndicatorInit(void)
 	GPIO_PORTB_AMSEL_R &= ~0X30;
 	GPIO_PORTB_PCTL_R &= ~0X30;
 	GPIO_PORTB_DEN_R |= 0X30;
+
 }
 
 /* This function reads the state of the PE0 and returns it */
@@ -84,4 +99,10 @@ void GPIO_TurnOnSpecialIndicator(void)
 void GPIO_TurnOffSpecialIndicator(void)
 {
 	GPIO_PORTB_DATA_R &= ~0X20;
+}
+
+void GPIOPortE_Handler(void)
+{
+	GPIO_PORTE_ICR_R |=0X1;
+	GPIO_Test++;
 }
