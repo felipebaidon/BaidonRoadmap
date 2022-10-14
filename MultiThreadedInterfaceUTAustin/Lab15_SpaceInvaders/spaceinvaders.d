@@ -3,6 +3,7 @@
 .\spaceinvaders.o: Random.h
 .\spaceinvaders.o: TExaS.h
 .\spaceinvaders.o: timer.h
+.\spaceinvaders.o: includes.h
 .\spaceinvaders.o: conversion.h
 .\spaceinvaders.o: GameEngine.h
 .\spaceinvaders.o: Sprites.h

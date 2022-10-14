@@ -61,8 +61,7 @@ void GameEngine_Init(void)
 	GameEngine_ShipPosition = 0;
 	GameEngine_CreateExplosion = 0;
 	
-	GPIO_ButtonsInit();	
-	GPIO_IndicatorInit();
+	GPIO_InitButtons(&GameEngine_SenseFireButton);
 	ADC0_Init();
 	Timer_InitTimers(&GameEngine_SenseInput, &Sprites_Move);
 	Sound_Init();
@@ -95,7 +94,6 @@ static void GameEngine_InitDisplay(void)
 	Output: none*/
 static void GameEngine_SenseInput(void)
 {
-		GameEngine_SenseFireButton();
 		GameEngine_SenseSpecialButton();
 		GameEngine_SenseCursorPosition();
 }

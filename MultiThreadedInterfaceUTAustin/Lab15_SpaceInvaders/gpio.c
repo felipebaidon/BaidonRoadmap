@@ -7,9 +7,20 @@
 // April 14, 2022
 
 #include "..//tm4c123gh6pm.h"
+#include "gpio.h"
 
-unsigned int GPIO_Test;
+Callback GPIO_FireMissile;
 
+/*This function is used to set up the GPIO registers and pass
+the interrupt functions to the interrupt handlers*/
+void GPIO_InitButtons(Callback fireButtonFunc)
+{
+	GPIO_ButtonsInit();
+	GPIO_FireMissile = fireButtonFunc;
+	GPIO_IndicatorInit();
+}
+
+//ToDo: Come up with a better name
 /* This function initializes the GPIO pins that are used
 	as Button inputs*/
 void GPIO_ButtonsInit(void)
@@ -35,7 +46,6 @@ void GPIO_ButtonsInit(void)
 	NVIC_PRI1_R = NVIC_PRI1_R&0xFFFFFF00; //priority 0
 	NVIC_EN0_R = 1<<4;           // 9) enable IRQ 21 in NVIC
 	
-	GPIO_Test = 0;
 }
 
 /* This function initializes the GPIO pins that are
@@ -104,5 +114,5 @@ void GPIO_TurnOffSpecialIndicator(void)
 void GPIOPortE_Handler(void)
 {
 	GPIO_PORTE_ICR_R |=0X1;
-	GPIO_Test++;
+	GPIO_FireMissile();
 }

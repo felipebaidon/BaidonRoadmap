@@ -8,6 +8,12 @@
 // Felipe Baidon
 // April 14, 2022
 
+#include "includes.h"
+
+/*This function is used to set up the GPIO registers and pass
+the interrupt functions to the interrupt handlers*/
+void GPIO_InitButtons(Callback fireButtonFunc);
+
 /* This function initializes the GPIO pins that are used
 	as Button inputs*/
 void GPIO_ButtonsInit(void);
