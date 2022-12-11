@@ -14,13 +14,6 @@
 	Output: none*/
 void GameEngine_Init(void);
 
-/*------------GameEngine_RefreshScreen------------
-	This function draws the screen at a certain rate, monitored by
-	the RefreshScreen flag
-	Input: none
-	Output: none
-	*/
-void GameEngine_RefreshScreen(void);
 
 /*------------GameEngine_GetEnemiesLife------------
 	This function determines if there is any space invader still alive

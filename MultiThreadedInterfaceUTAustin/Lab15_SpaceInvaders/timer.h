@@ -15,7 +15,7 @@
 typedef void (*Callback)(void);
 
 /* Global Variables*/
-extern unsigned long Timer_EnemiesPositionUpdated;
+
 
 /* This function is used to setup the timer2 and timer0 modules
 */

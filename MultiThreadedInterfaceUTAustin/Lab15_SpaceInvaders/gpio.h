@@ -12,7 +12,7 @@
 
 /*This function is used to set up the GPIO registers and pass
 the interrupt functions to the interrupt handlers*/
-void GPIO_InitButtons(Callback fireButtonFunc);
+void GPIO_InitButtons(Callback fireButtonFunc, Callback specialButtonFunc);
 
 /* This function initializes the GPIO pins that are used
 	as Button inputs*/

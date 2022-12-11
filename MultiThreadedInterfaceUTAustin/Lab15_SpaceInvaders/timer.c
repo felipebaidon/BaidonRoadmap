@@ -8,9 +8,11 @@
 
 #include "..//tm4c123gh6pm.h"
 #include "timer.h"
+/* File Scope Macro definitions */
 
 /* Global extern variables */
 unsigned long Timer_EnemiesPositionUpdated;
+unsigned int Timer_InvaderShoots;
 
 /*File scope function prototypes*/
 static void Timer2_Init(void);
@@ -25,6 +27,7 @@ void Timer_InitTimers(Callback senseInput, Callback refreshPosition)
 	Timer_ReadInput = senseInput;
 	Timer0_Init();
 	Timer_MoveInvaders = refreshPosition;
+	Timer_InvaderShoots = 0;
 	
 }
 
@@ -79,6 +82,7 @@ void Timer0A_Handler(void)
 	TIMER0_ICR_R = 0x00000001;
 	Timer_MoveInvaders();;
   Timer_EnemiesPositionUpdated = 1;
+	Timer_InvaderShoots++;
 }
 
 

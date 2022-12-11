@@ -9,14 +9,15 @@
 #include "..//tm4c123gh6pm.h"
 #include "gpio.h"
 
-Callback GPIO_FireMissile;
+Callback GPIO_FireMissile, GPIO_SpecialMissile;
 
 /*This function is used to set up the GPIO registers and pass
 the interrupt functions to the interrupt handlers*/
-void GPIO_InitButtons(Callback fireButtonFunc)
+void GPIO_InitButtons(Callback fireButtonFunc, Callback specialButtonFunc)
 {
 	GPIO_ButtonsInit();
 	GPIO_FireMissile = fireButtonFunc;
+	GPIO_SpecialMissile = specialButtonFunc;
 	GPIO_IndicatorInit();
 }
 
@@ -113,6 +114,14 @@ void GPIO_TurnOffSpecialIndicator(void)
 
 void GPIOPortE_Handler(void)
 {
-	GPIO_PORTE_ICR_R |=0X1;
-	GPIO_FireMissile();
+	if(GPIO_PORTE_RIS_R & 0x1)
+	{
+			GPIO_PORTE_ICR_R |=0X1;
+			GPIO_FireMissile();
+	}
+	else if (GPIO_PORTE_RIS_R & 0x2)
+	{
+		GPIO_PORTE_ICR_R |= 0x2;
+		GPIO_SpecialMissile();
+	}
 }

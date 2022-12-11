@@ -14,11 +14,12 @@
 #include "sound.h"
 #include "timer.h"
 #include "conversion.h"
+#include "random.h"
+#include "GameEngine.h"
 
 
-#define ENEMY_HEIGHT	 10
-#define ENEMY_WIDTH		 16
 #define MISSILE_HEIGHT	9 
+#define INVADER_ATTACK_COUNT	10
 
 
 /*File scope typedefs */
@@ -34,7 +35,15 @@ Button_t GameEngine_FireButton;
 Button_t GameEngine_SpecialButton;
 unsigned long GameEngine_ADCData;
 unsigned long GameEngine_ShipPosition;
-unsigned int GameEngine_CreateExplosion;
+unsigned int GameEngine_CreateInvaderExplosion;
+extern unsigned long Timer_EnemiesPositionUpdated;
+extern unsigned int Timer_InvaderShoots;
+unsigned int GameEngine_GameOver;
+extern STyp InvaderMissile;
+extern STyp PlayerShip;
+unsigned int GameEngine_PlayerShipDestroyed;
+unsigned int GameEngine_CreateShipExplosion;
+extern STyp BigExplosion;
 
 /* Function prototypes*/
 static void GameEngine_InitDisplay(void);
@@ -49,6 +58,8 @@ static void GameEngine_SenseCursorPosition(void);
 static void GameEngine_MovePlayerShip(void);
 static void GameEngine_CheckGameOver(void);
 static void GameEngine_DestroyInvader(void);
+static void GameEngine_MakeInvaderAttack(void);
+static void GameEngine_DestroyPlayerShip(void);
 
 /*------------GameEngine_Init------------
 	This function initializes the peripherals used to setup
@@ -59,9 +70,11 @@ void GameEngine_Init(void)
 {
 	GameEngine_ADCData = 0;
 	GameEngine_ShipPosition = 0;
-	GameEngine_CreateExplosion = 0;
+	GameEngine_CreateInvaderExplosion = 0;
+	GameEngine_GameOver = 0;
+	GameEngine_PlayerShipDestroyed = 0;
 	
-	GPIO_InitButtons(&GameEngine_SenseFireButton);
+	GPIO_InitButtons(&GameEngine_SenseFireButton, &GameEngine_SenseSpecialButton);
 	ADC0_Init();
 	Timer_InitTimers(&GameEngine_SenseInput, &Sprites_Move);
 	Sound_Init();
@@ -94,7 +107,6 @@ static void GameEngine_InitDisplay(void)
 	Output: none*/
 static void GameEngine_SenseInput(void)
 {
-		GameEngine_SenseSpecialButton();
 		GameEngine_SenseCursorPosition();
 }
 
@@ -158,6 +170,7 @@ void GameEngine_MainEngine(void)
 	GameEngine_Attack();
 	GameEngine_MovePlayerShip();
 	GameEngine_DestroyInvader();
+	GameEngine_DestroyPlayerShip();
 	GameEngine_RefreshScreen();
 	GameEngine_CheckGameOver();
 	
@@ -172,11 +185,34 @@ void GameEngine_MainEngine(void)
 	Output: none*/
 static void GameEngine_Attack(void)
 {
+	GameEngine_MakeInvaderAttack();
 	GameEngine_performFire();
 	GameEngine_performSpecialAttack();
 	
 }
+
+/*------------GameEngine_MakeInvaderAttack------------
+	This function randomly selects an invader to fire
+	a missile
+	Input: none
+	Output: none*/
+static void GameEngine_MakeInvaderAttack(void)
+{
+	unsigned int invaderAttacking = 0;
 	
+	if((Timer_InvaderShoots == INVADER_ATTACK_COUNT) && (GameEngine_GetEnemiesLife()))
+	{
+		invaderAttacking = Random() % NUMBER_OF_ENEMIES;
+		
+		if(Enemy[invaderAttacking].life)
+		{
+			Sound_Shoot();
+			Sprites_SendInvaderMissile(Enemy[invaderAttacking].x, Enemy[invaderAttacking].y);		
+		}
+		Timer_InvaderShoots = 0;		
+	}
+}
+
 /*------------GameEngine_performFire------------
 	This function plays the elements of the videogame
 	related to a missil Fire.
@@ -188,7 +224,7 @@ static void GameEngine_performFire(void)
 	{
 		GPIO_TurnOnFireIndicator();
 		Sound_Shoot();
-		Sprites_SendMissile(GameEngine_ShipPosition);
+		Sprites_SendShipMissile(GameEngine_ShipPosition);
 		GameEngine_FireButton.wasPressed = 0;
 	}
 	else
@@ -254,16 +290,16 @@ void GameEngine_DestroyInvader(void)
 {
 	unsigned int i;
 	
-	if(Missile.life)
+	if(PlayerMissile.life)
 	{
 		for( i = 0; i < NUMBER_OF_ENEMIES ; i++)
 		{
-			if((((Missile.y - MISSILE_HEIGHT)< Enemy[i].y) && ((Missile.y - MISSILE_HEIGHT) > (Enemy[i].y - ENEMY_HEIGHT)))
-				&& ((Missile.x > Enemy[i].x) && (Missile.x < (Enemy[i].x + ENEMY_WIDTH))) && Enemy[i].life)
+			if((((PlayerMissile.y - MISSILE_HEIGHT)< Enemy[i].y) && ((PlayerMissile.y - MISSILE_HEIGHT) >= (Enemy[i].y - ENEMY_HEIGHT)))
+				&& ((PlayerMissile.x > Enemy[i].x) && (PlayerMissile.x < (Enemy[i].x + ENEMY_WIDTH))) && Enemy[i].life)
 			{
-				Missile.life = 0;
+				PlayerMissile.life = 0;
 				Enemy[i].life = 0;
-				GameEngine_CreateExplosion = 1;
+				GameEngine_CreateInvaderExplosion = 1;
 				Explosion.x = Enemy[i].x;
 				Explosion.y = Enemy[i].y;
 				Explosion.life = 1;
@@ -272,6 +308,26 @@ void GameEngine_DestroyInvader(void)
 		}
 	}
 }
+
+void GameEngine_DestroyPlayerShip(void)
+{
+	if(InvaderMissile.life)
+	{
+		if(((InvaderMissile.x > PlayerShip.x) && (InvaderMissile.x < (PlayerShip.x + PLAYER_SHIP_WIDTH))) 
+			&&(InvaderMissile.y >= PlayerShip.y))
+		{
+			BigExplosion.x = PlayerShip.x;
+			BigExplosion.y = PlayerShip.y;
+			PlayerShip.life = 0;
+			InvaderMissile.life = 0;
+			GameEngine_CreateShipExplosion = 1;
+			//GameEngine_PlayerShipDestroyed = 1;
+			//Create big explosion
+			//Game_over
+		}
+	}
+}
+
 /*------------GameEngine_GetEnemiesLife------------
 	This function determines if there is any space invader still alive
 	in the screen
@@ -298,11 +354,15 @@ unsigned int GameEngine_GetEnemiesLife(void)
 */
 void GameEngine_CheckGameOver(void)
 {
-	if((Enemy[NUMBER_OF_ENEMIES -1].y - ENEMY_HEIGHT) > (HEIGHT_OF_DISPLAY - PLAYER_SHIP_HEIGHT))
+	if(((Enemy[NUMBER_OF_ENEMIES -1].y - ENEMY_HEIGHT) > (HEIGHT_OF_DISPLAY - PLAYER_SHIP_HEIGHT)) || GameEngine_PlayerShipDestroyed)
 	{
-		Nokia5110_Clear();
-		Nokia5110_SetCursor(0,0);
-		Nokia5110_OutString((char*)"Game Over");
+		int i;
+		
+		for(i = 0; i < NUMBER_OF_ENEMIES ; i++)
+		{
+			Enemy[i].life = 0;
+			GameEngine_GameOver = 1;
+		}
 	}
 }
 

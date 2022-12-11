@@ -621,6 +621,11 @@
               <FileType>5</FileType>
               <FilePath>.\GameEngine.h</FilePath>
             </File>
+            <File>
+              <FileName>sprites.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\sprites.h</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

@@ -3,7 +3,10 @@
 
 #define NUMBER_OF_ENEMIES 	3
 #define PLAYER_SHIP_HEIGHT	8
-#define HEIGHT_OF_DISPLAY 	47 
+#define PLAYER_SHIP_WIDTH   18
+#define HEIGHT_OF_DISPLAY 	47
+#define ENEMY_HEIGHT	 10
+#define ENEMY_WIDTH		 16
 
 // enemy ship that starts at the top of the screen (arms/mouth closed)
 // width=16 x height=10
@@ -19,9 +22,9 @@ struct State {
 
 typedef struct State STyp;
 
-extern STyp Sprites_PlayerShip;
+extern STyp PlayerShip;
 extern STyp Enemy[NUMBER_OF_ENEMIES];
-extern STyp Missile;
+extern STyp PlayerMissile;
 extern STyp Explosion;
 
 
@@ -29,7 +32,8 @@ void Sprites_Init(unsigned long shipPosition);
 
 void Sprites_Move(void);
 void Sprites_MovePlayerShip(unsigned long position);
-void Sprites_SendMissile(unsigned long position);
+void Sprites_SendShipMissile(unsigned long position);
+void Sprites_SendInvaderMissile(signed long invaderHorizontalPos, signed long invaderVerticalPos);
 
 void Sprites_Draw(void);
 

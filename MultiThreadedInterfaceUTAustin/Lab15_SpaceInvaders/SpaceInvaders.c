@@ -86,6 +86,7 @@ void Delay10ms(void);
 
 unsigned long Distance;
 unsigned char String[10];
+extern unsigned int GameEngine_GameOver;
 
 int main()
 {		
@@ -102,7 +103,16 @@ int main()
 	
 	Nokia5110_Clear();
 	Nokia5110_SetCursor(0,0);
-	Nokia5110_OutString((char*)"Success!!");
+	
+	if(GameEngine_GameOver)
+	{
+		Nokia5110_OutString((char*)"Game Over");
+	}
+	else
+	{
+		Nokia5110_OutString((char*)"Success!!");
+	}
+	
 }
  
  
