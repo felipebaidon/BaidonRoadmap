@@ -469,7 +469,7 @@ void Task7(void){
 // to work on this step, you must rename all other main()
 // functions in this file.
 int32_t s1,s2;
-int main(void){
+int main_step1(void){
   OS_InitSemaphore(&s1, 0);
   OS_InitSemaphore(&s2, 1);
   while(1){
@@ -499,78 +499,78 @@ int main(void){
 // Remember that you must have exactly one main() function, so
 // to work on this step, you must rename all other main()
 // functions in this file.
-//int32_t sAB,sCD,sEF;
-//int32_t CountA,CountB,CountC,CountD,CountE,CountF;
-//void TaskA(void){ // producer
-//  CountA = 0;
-//  while(1){
-//    CountA++;
-//    TExaS_Task0();
-//    Profile_Toggle0();
-//    OS_Signal(&sAB);  // TaskB can proceed
-//    BSP_Delay1ms(2);  // important: actual delay is multiplied by number of unblocked threads (expect 3)
-//  }
-//}
-//void TaskB(void){ // consumer
-//  CountB = 0;
-//  while(1){
-//    CountB++;
-//    OS_Wait(&sAB);  // signaled by TaskA
-//    TExaS_Task1();
-//    Profile_Toggle1();
-//  }
-//}
-//void TaskC(void){ // producer
-//  CountC = 0;
-//  while(1){
-//    CountC++;
-//    TExaS_Task2();
-//    Profile_Toggle2();
-//    OS_Signal(&sCD);  // TaskD can proceed
-//    BSP_Delay1ms(20); // important: actual delay is multiplied by number of unblocked threads (expect 3)
-//  }
-//}
-//void TaskD(void){ // consumer
-//  CountD = 0;
-//  while(1){
-//    CountD++;
-//    OS_Wait(&sCD);  // signaled by TaskC
-//    TExaS_Task3();
-//    Profile_Toggle3();
-//  }
-//}
-//void TaskE(void){ // producer
-//  CountE = 0;
-//  while(1){
-//    CountE++;
-//    TExaS_Task4();
-//    Profile_Toggle4();
-//    OS_Signal(&sEF);  // TaskF can proceed
-//    BSP_Delay1ms(200);// important: actual delay is multiplied by number of unblocked threads (expect 3)
-//  }
-//}
-//void TaskF(void){ // consumer
-//  CountF = 0;
-//  while(1){
-//    CountF++;
-//    OS_Wait(&sEF);  // signaled by TaskE
-//    TExaS_Task5();
-//    Profile_Toggle5();
-//  }
-//}
+int32_t sAB,sCD,sEF;
+int32_t CountA,CountB,CountC,CountD,CountE,CountF;
+void TaskA(void){ // producer
+  CountA = 0;
+  while(1){
+    CountA++;
+    TExaS_Task0();
+    Profile_Toggle0();
+    OS_Signal(&sAB);  // TaskB can proceed
+    BSP_Delay1ms(2);  // important: actual delay is multiplied by number of unblocked threads (expect 3)
+  }
+}
+void TaskB(void){ // consumer
+  CountB = 0;
+  while(1){
+    CountB++;
+    OS_Wait(&sAB);  // signaled by TaskA
+    TExaS_Task1();
+    Profile_Toggle1();
+  }
+}
+void TaskC(void){ // producer
+  CountC = 0;
+  while(1){
+    CountC++;
+    TExaS_Task2();
+    Profile_Toggle2();
+    OS_Signal(&sCD);  // TaskD can proceed
+    BSP_Delay1ms(20); // important: actual delay is multiplied by number of unblocked threads (expect 3)
+  }
+}
+void TaskD(void){ // consumer
+  CountD = 0;
+  while(1){
+    CountD++;
+    OS_Wait(&sCD);  // signaled by TaskC
+    TExaS_Task3();
+    Profile_Toggle3();
+  }
+}
+void TaskE(void){ // producer
+  CountE = 0;
+  while(1){
+    CountE++;
+    TExaS_Task4();
+    Profile_Toggle4();
+    OS_Signal(&sEF);  // TaskF can proceed
+    BSP_Delay1ms(200);// important: actual delay is multiplied by number of unblocked threads (expect 3)
+  }
+}
+void TaskF(void){ // consumer
+  CountF = 0;
+  while(1){
+    CountF++;
+    OS_Wait(&sEF);  // signaled by TaskE
+    TExaS_Task5();
+    Profile_Toggle5();
+  }
+}
 
-//int main_step2(void){
-//  OS_Init();
-//  Profile_Init();  // initialize the 7 hardware profiling pins
-//  OS_InitSemaphore(&sAB, 0);
-//  OS_InitSemaphore(&sCD, 0);
-//  OS_InitSemaphore(&sEF, 0);
-//  OS_AddThreads(&TaskA, &TaskB, &TaskC, &TaskD, &TaskE, &TaskF);
-////  TExaS_Init(LOGICANALYZER, 1000); // initialize the Lab 3 grader
-//  TExaS_Init(GRADESTEP2, 1000);    // initialize the Lab 3 grader
-//  OS_Launch(BSP_Clock_GetFreq()/1000);
-//  return 0;             // this never executes
-//}
+int main(void){
+  OS_Init();
+  Profile_Init();  // initialize the 7 hardware profiling pins
+  OS_InitSemaphore(&sAB, 0);
+  OS_InitSemaphore(&sCD, 0);
+  OS_InitSemaphore(&sEF, 0);
+  OS_AddThreads(&TaskA, &TaskB, &TaskC, &TaskD, &TaskE, &TaskF);
+//  TExaS_Init(LOGICANALYZER, 1000); // initialize the Lab 3 grader
+  TExaS_Init(GRADESTEP2, 1000);    // initialize the Lab 3 grader
+  OS_Launch(BSP_Clock_GetFreq()/1000);
+  return 0;             // this never executes
+}
 /* ****************************************** */
 /*          End of Step 2 Section             */
 /* ****************************************** */

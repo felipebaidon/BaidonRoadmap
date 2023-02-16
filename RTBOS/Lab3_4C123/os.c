@@ -18,7 +18,7 @@ void StartOS(void);
 struct tcb{
   int32_t *sp;       // pointer to stack (valid for threads not running
   struct tcb *next;  // linked-list pointer
-	// nonzero if blocked on this semaphore
+	int32_t *blocked;   // nonzero if blocked on this semaphore
    // nonzero if this thread is sleeping
 //*FILL THIS IN****
 };
@@ -41,8 +41,24 @@ void OS_Init(void){
 }
 
 void SetInitialStack(int i){
-
-  // **Same as Lab 2****
+	
+	tcbs[i].sp = &Stacks[i][STACKSIZE - 16];
+	
+	Stacks[i][STACKSIZE - 1] = 0x01000000;
+	Stacks[i][STACKSIZE - 3] = 0x14141414;
+	Stacks[i][STACKSIZE - 4] = 0x12121212;
+	Stacks[i][STACKSIZE - 5] = 0X03030303;
+	Stacks[i][STACKSIZE - 6] = 0X02020202;
+	Stacks[i][STACKSIZE - 7] = 0X01010101;
+	Stacks[i][STACKSIZE - 8] = 0X00000000;
+	Stacks[i][STACKSIZE - 9] = 0X11111111;
+	Stacks[i][STACKSIZE - 10] = 0X10101010;
+	Stacks[i][STACKSIZE - 11] = 0X09090909;
+	Stacks[i][STACKSIZE - 12] = 0X08080808;
+	Stacks[i][STACKSIZE - 13] = 0X07070707;
+	Stacks[i][STACKSIZE - 14] = 0X06060606;
+	Stacks[i][STACKSIZE - 15] = 0X05050505;
+	Stacks[i][STACKSIZE - 16] = 0X04040404;
 }
 
 //******** OS_AddThreads ***************
@@ -57,7 +73,40 @@ int OS_AddThreads(void(*thread0)(void),
                   void(*thread4)(void),
                   void(*thread5)(void)){
   // **similar to Lab 2. initialize as not blocked, not sleeping****
+ int32_t status;
 
+ status = StartCritical();
+										
+ tcbs[0].next = &tcbs[1];
+ tcbs[1].next = &tcbs[2];
+ tcbs[2].next = &tcbs[3];
+ tcbs[3].next = &tcbs[4];
+ tcbs[4].next = &tcbs[5];
+ tcbs[5].next = &tcbs[0];
+										
+ tcbs[0].blocked = 0;
+ tcbs[1].blocked = 0;
+ tcbs[2].blocked = 0;
+ tcbs[3].blocked = 0;
+ tcbs[4].blocked = 0;
+ tcbs[5].blocked = 0;	
+										
+	SetInitialStack(0);
+	Stacks[0][STACKSIZE - 2] = (int32_t)thread0;
+	SetInitialStack(1);
+	Stacks[1][STACKSIZE - 2] = (int32_t)thread1;
+	SetInitialStack(2);
+	Stacks[2][STACKSIZE - 2] = (int32_t)thread2;
+	SetInitialStack(3);
+	Stacks[3][STACKSIZE - 2] = (int32_t)thread3;
+	SetInitialStack(4);
+	Stacks[4][STACKSIZE - 2] = (int32_t)thread4;
+	SetInitialStack(5);
+	Stacks[5][STACKSIZE - 2] = (int32_t)thread5;
+	
+	RunPt = &tcbs[0];
+	EndCritical(status);
+										
   return 1;               // successful
 }
 
@@ -97,9 +146,15 @@ void OS_Launch(uint32_t theTimeSlice){
   STCTRL = 0x00000007;         // enable, core clock and interrupt arm
   StartOS();                   // start on the first task
 }
+
 // runs every ms
-void Scheduler(void){ // every time slice
-// ROUND ROBIN, skip blocked and sleeping threads
+void Scheduler(void){
+	
+	RunPt = RunPt ->next;
+	while(RunPt->blocked)
+	{
+		RunPt = RunPt ->next;
+	}
 }
 
 //******** OS_Suspend ***************
@@ -140,7 +195,18 @@ void OS_InitSemaphore(int32_t *semaPt, int32_t value){
 // Inputs:  pointer to a counting semaphore
 // Outputs: none
 void OS_Wait(int32_t *semaPt){
-
+	
+	DisableInterrupts();
+	*semaPt = *semaPt - 1;
+	
+	if(*semaPt < 0)
+	{
+		RunPt->blocked = semaPt;
+		EnableInterrupts();
+		OS_Suspend();
+	}
+	
+	EnableInterrupts();
 }
 
 // ******** OS_Signal ************
@@ -150,6 +216,25 @@ void OS_Wait(int32_t *semaPt){
 // Inputs:  pointer to a counting semaphore
 // Outputs: none
 void OS_Signal(int32_t *semaPt){
+	
+	tcbType *pt;
+	DisableInterrupts();
+	
+	*semaPt = *semaPt + 1;
+	
+	if(*semaPt <= 0)
+	{
+		pt = RunPt ->next;
+		
+		while(pt->blocked != semaPt)
+		{
+			pt = pt ->next;
+		}
+		
+		pt ->blocked = 0;
+	}
+	
+	EnableInterrupts();
 }
 
 #define FSIZE 10    // can be any size
