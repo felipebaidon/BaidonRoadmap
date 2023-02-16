@@ -29,6 +29,7 @@ SysTick_Handler                ; 1) Saves R0-R3,R12,LR,PC,PSR
 	BL Scheduler
 	POP {R0, LR}
 	LDR R1,[R0]
+	LDR SP,[R1]
 	POP{R4-R11}
     CPSIE   I                  ; 9) tasks run with interrupts enabled
     BX      LR                 ; 10) restore R0-R3,R12,LR,PC,PSR
