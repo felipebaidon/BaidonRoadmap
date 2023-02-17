@@ -592,7 +592,9 @@ int main_step2(void){
 int32_t TaskGdata;
 void TaskG(void){ // producer
   TaskGdata=0;
-  while(1){ int i; int num = (TaskGdata%5)+1;
+  while(1){ 
+		int i; 
+		int num = (TaskGdata%5)+1;
     //TExaS_Task0();
     Profile_Toggle0();
     for(i=0; i<num; i++){
