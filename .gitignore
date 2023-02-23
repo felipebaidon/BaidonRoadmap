@@ -2,3 +2,6 @@
 RTBOS/*/Objects/*
 RTBOS/*/*.uvguix.FelipeBaidon
 RTBOS/*/Listings/*
+*.uvguix
+*.uvoptx
+*.uvprojx
