@@ -9,8 +9,14 @@
 #include "CortexM.h"
 #include "BSP.h"
 
+
 // function definitions in osasm.s
 void StartOS(void);
+
+/* File scope functions */
+void OS_DecrementSleepTime(void);
+void OS_RunPeriodicEvents(void);
+void OS_RunPeriodicEventThreads(void);
 
 #define NUMTHREADS  6        // maximum number of threads
 #define NUMPERIODIC 2        // maximum number of periodic threads
@@ -18,15 +24,23 @@ void StartOS(void);
 struct tcb{
   int32_t *sp;       // pointer to stack (valid for threads not running
   struct tcb *next;  // linked-list pointer
-	int32_t *blocked;   // nonzero if blocked on this semaphore
-   // nonzero if this thread is sleeping
+	int32_t *blocked;  // nonzero if blocked on this semaphore
+  uint32_t sleep;		// nonzero if this thread is sleeping
 //*FILL THIS IN****
 };
+
 typedef struct tcb tcbType;
 tcbType tcbs[NUMTHREADS];
 tcbType *RunPt;
 int32_t Stacks[NUMTHREADS][STACKSIZE];
 
+typedef void (*funcPt)(void);
+
+funcPt PeriodicEventThreads[NUMPERIODIC];
+uint32_t PeriodicEventThreadsPeriod[NUMPERIODIC];
+
+int8_t EventThreadsIndex;
+uint32_t Counter;
 
 // ******** OS_Init ************
 // Initialize operating system, disable interrupts
@@ -37,7 +51,10 @@ int32_t Stacks[NUMTHREADS][STACKSIZE];
 void OS_Init(void){
   DisableInterrupts();
   BSP_Clock_InitFastest();// set processor clock to fastest speed
-  
+  BSP_PeriodicTask_Init(&OS_RunPeriodicEvents, 1000, 6);
+	
+	EventThreadsIndex = 0;
+	Counter = 0;
 }
 
 void SetInitialStack(int i){
@@ -122,16 +139,53 @@ int OS_AddThreads(void(*thread0)(void),
 // These threads can call OS_Signal
 // In Lab 3 this will be called exactly twice
 int OS_AddPeriodicEventThread(void(*thread)(void), uint32_t period){
-// ****IMPLEMENT THIS****
-  return 1;
-
+	
+  uint8_t success = 0;
+	
+	if(EventThreadsIndex < NUMPERIODIC )
+	{
+		PeriodicEventThreads[EventThreadsIndex] = thread;
+		PeriodicEventThreadsPeriod[EventThreadsIndex] = period;
+	
+		EventThreadsIndex++;
+		
+		success = 1;
+	}
+	
+  return success;
 }
 
-void static runperiodicevents(void){
-// ****IMPLEMENT THIS****
-// **RUN PERIODIC THREADS, DECREMENT SLEEP COUNTERS
-
+//******** OS_RunPeriodicEvents ***************
+// This function runs during each widetimer5 ISR
+// Inputs: none
+// Outputs: none
+void OS_RunPeriodicEvents(void)
+{	
+	OS_RunPeriodicEventThreads();
+	OS_DecrementSleepTime();
 }
+
+//******** OS_PeriodicEventThreads ***************
+// This function runs the available periodic events
+// Inputs: none
+// Outputs: none
+void OS_RunPeriodicEventThreads(void)
+{	
+	uint8_t index = 0;
+	
+	if((Counter % PeriodicEventThreadsPeriod[index]) == 0)
+	{
+		PeriodicEventThreads[index]();
+	}
+	else
+	{
+		PeriodicEventThreads[++index]();
+	}
+	
+	Counter = (Counter + 1)% PeriodicEventThreadsPeriod[0];
+	
+}
+
 
 //******** OS_Launch ***************
 // Start the scheduler, enable interrupts
@@ -151,7 +205,7 @@ void OS_Launch(uint32_t theTimeSlice){
 void Scheduler(void){
 	
 	RunPt = RunPt ->next;
-	while(RunPt->blocked)
+	while((RunPt->blocked != 0)||(RunPt -> sleep != 0))
 	{
 		RunPt = RunPt ->next;
 	}
@@ -174,8 +228,26 @@ void OS_Suspend(void){
 // output: none
 // OS_Sleep(0) implements cooperative multitasking
 void OS_Sleep(uint32_t sleepTime){
-// set sleep parameter in TCB
-// suspend, stops running
+	RunPt->sleep = sleepTime;
+	OS_Suspend();
+}
+
+// ******** OS_DecrementSleepTime ************
+// This function will decrement the sleeping time, if any, 
+// of a task 
+// input:  none
+// output: none
+void OS_DecrementSleepTime(void)
+{
+  uint8_t i;
+		
+	for(i = 0; i < NUMTHREADS ; i++)
+	{
+		if(tcbs[i].sleep != 0)
+		{
+			tcbs[i].sleep = tcbs[i].sleep - 1;
+		}
+	}
 }
 
 // ******** OS_InitSemaphore ************
