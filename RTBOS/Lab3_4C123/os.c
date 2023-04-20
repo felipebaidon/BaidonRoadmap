@@ -108,6 +108,13 @@ int OS_AddThreads(void(*thread0)(void),
  tcbs[4].blocked = 0;
  tcbs[5].blocked = 0;	
 										
+ tcbs[0].sleep = 0;
+ tcbs[1].sleep = 0;
+ tcbs[2].sleep = 0;
+ tcbs[3].sleep = 0;
+ tcbs[4].sleep = 0;
+ tcbs[5].sleep = 0;	
+										
 	SetInitialStack(0);
 	Stacks[0][STACKSIZE - 2] = (int32_t)thread0;
 	SetInitialStack(1);

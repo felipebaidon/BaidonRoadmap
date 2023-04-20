@@ -467,7 +467,7 @@ int main(void){
   BSP_RGB_Init(0, 0, 0);
   BSP_Buzzer_Init(0);
   BSP_LCD_Init();
-  BSP_LCD_FillScreen(BSP_LCD_Color565(0, 0, 0));
+  BSP_LCD_FillScreen(BSP_LCD_Color565(0,0,0));
   BSP_LightSensor_Init();
   BSP_TempSensor_Init();
   Time = 0;
