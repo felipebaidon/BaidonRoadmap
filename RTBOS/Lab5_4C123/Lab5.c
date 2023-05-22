@@ -202,6 +202,7 @@ int main(void){
     BSP_LCD_DrawString(0, 0, "                   ", LCD_YELLOW);
   }
   EnableInterrupts();
+	OS_File_Format(); // for debugging purposes
   n = OS_File_New();            // n = 0, 3, 6, 9, ...
   testbuildbuff("buf0");
   OS_File_Append(n, Buff);      // 0x00020000

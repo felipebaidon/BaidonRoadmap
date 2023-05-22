@@ -22,7 +22,7 @@ int16_t max(int16_t a, int16_t b){
 // bring it into RAM from disk
 void MountDirectory(void){ 
 	
-	uint8_t i = 0;
+	uint16_t i = 0;
 // if bDirectoryLoaded is 0, 
 //    read disk sector 255 and populate Directory and FAT
 //    set bDirectoryLoaded=1
@@ -251,7 +251,7 @@ uint8_t OS_File_Read(uint8_t num, uint8_t location,
 // Errors:  255 on disk write failure
 uint8_t OS_File_Flush(void){
 	
-	uint8_t i = 0;
+	uint16_t i = 0;
 	uint8_t result = 0;
 	
 	if( bDirectoryLoaded == 1)

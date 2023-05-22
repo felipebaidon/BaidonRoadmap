@@ -72,14 +72,22 @@ enum DRESULT eDisk_ReadSector(
 // copy 512 bytes from ROM (disk) into RAM (buff)
 			
 			enum DRESULT result = RES_OK;
+			uint16_t i = 0;
+			uint8_t *sectorAddrPtr = (uint8_t *)(EDISK_ADDR_MIN + 512 * sector);
 			
-			if( (EDISK_ADDR_MIN + 512 * sector) > EDISK_ADDR_MAX)
+			if( sectorAddrPtr > (uint8_t*)EDISK_ADDR_MAX)
 			{
 				result = RES_PARERR;
 			}
 			else
 			{
-				*buff = (*(volatile uint8_t *)(EDISK_ADDR_MIN + 512*sector));
+				
+				while( i < 512)
+				{
+					buff[i] = sectorAddrPtr[i];
+					i++;
+				}
+				
 				result = RES_OK;
 			}
 			
@@ -104,14 +112,15 @@ enum DRESULT eDisk_WriteSector(
 // write 512 bytes from RAM (buff) into ROM (disk)
 // you can use Flash_FastWrite or Flash_WriteArray		
 			enum DRESULT result = RES_OK;
+			uint8_t *sectorAddrPtr = (uint8_t*)(EDISK_ADDR_MIN + 512 * sector);
 			
-			if( (EDISK_ADDR_MIN + 512 * sector) > EDISK_ADDR_MAX)
+			if( sectorAddrPtr > (uint8_t*)EDISK_ADDR_MAX)
 			{
 				result = RES_PARERR;
 			}
 			else
 			{
-				result = (enum DRESULT)(Flash_Write( EDISK_ADDR_MIN + sector*512, *buff));
+				result = (enum DRESULT)(Flash_WriteArray((uint32_t*)buff, (uint32_t)(EDISK_ADDR_MIN + 512 * sector), 128));
 			}
   
 			 return result;
