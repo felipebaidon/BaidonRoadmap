@@ -402,7 +402,7 @@ void Task5(void){int32_t soundSum; int count=0;
   while(1){
     OS_Wait(&NewData);
     TExaS_Task5();     // records system time in array, toggles virtual logic analyzer
-//    Profile_Toggle5(); // viewed by a real logic analyzer to know Task5 started
+    Profile_Toggle5(); // viewed by a real logic analyzer to know Task5 started
     soundSum = 0;
     for(int i=0; i<SOUNDRMSLENGTH; i=i+1){
       soundSum = soundSum + (SoundArray[i] - SoundAvg)*(SoundArray[i] - SoundAvg);
@@ -441,7 +441,7 @@ void Task6(void){ uint32_t lightData;
   int done;
   while(1){
     TExaS_Task6();     // records system time in array, toggles virtual logic analyzer
-//    Profile_Toggle6(); // viewed by a real logic analyzer to know Task6 started
+    Profile_Toggle6(); // viewed by a real logic analyzer to know Task6 started
 
     OS_Wait(&I2Cmutex);
     BSP_LightSensor_Start();
