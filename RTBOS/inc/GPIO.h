@@ -68,7 +68,7 @@
 #define ClearMRDY() (PB5 = 0x00)
 #define SetReset() (PC6 = 0x40)
 #define ClearReset() (PC6 = 0x00)
-#define ReadSRDY() (PC6)
+#define ReadSRDY() (PB2)
 #else
 // These three options require either reprogramming the CC2650LP/CC2650BP or using a 7-wire tether
 // These three options allow the use of the MKII I/O boosterpack
