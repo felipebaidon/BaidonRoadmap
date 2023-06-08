@@ -30,9 +30,10 @@ typedef struct tcb tcbType;
 tcbType tcbs[NUMTHREADS];
 tcbType *RunPt;
 int32_t Stacks[NUMTHREADS][STACKSIZE];
-void static runperiodicevents(void);
 uint32_t NumThread=0;  // number of threads
 uint32_t static ThreadId=0;   // thread Ids are sequential from 1
+
+void OS_DecrementSleepTime(void);
 
 // ******** OS_Init ************
 // Initialize operating system, disable interrupts
@@ -47,7 +48,7 @@ void OS_Init(void){
   ThreadId=0;   // thread Ids are sequential from 1
 // perform any initializations needed, 
 // set up periodic timer to run runperiodicevents to implement sleeping
-  BSP_PeriodicTask_InitB(&runperiodicevents, 1000, 0);
+  BSP_PeriodicTask_InitB(&OS_DecrementSleepTime, 1000, 0);
 }
 
 
@@ -58,7 +59,8 @@ void OS_Init(void){
 //         priority (0 is highest)
 // Outputs: Thread ID if successful, 0 if this thread can not be added
 // stack size must be divisable by 8 (aligned to double word boundary)
-int OS_AddThread(void(*task)(void), uint32_t priority){ int status;
+int OS_AddThread(void(*task)(void), uint32_t priority){ 
+	int status;
   int n;         // index to new thread TCB 
   tcbType *NewPt;  // Pointer to nex thread TCB
   tcbType *LastPt; // Pointer to last thread TCB
@@ -125,11 +127,22 @@ uint32_t OS_Id(void){
   return RunPt->Id;
 }
 
-void static runperiodicevents(void){
-// ****IMPLEMENT THIS****
-// **DECREMENT SLEEP COUNTERS
-// In Lab 4, handle periodic events in RealTimeEvents
-  
+// ******** OS_DecrementSleepTime ************
+// This function will decrement the sleeping time, if any, 
+// of a task 
+// input:  none
+// output: none
+void OS_DecrementSleepTime(void)
+{
+  uint8_t i;
+		
+	for(i = 0; i < NUMTHREADS ; i++)
+	{
+		if(tcbs[i].Sleep != 0)
+		{
+			tcbs[i].Sleep = tcbs[i].Sleep - 1;
+		}
+	}
 }
 
 //******** OS_Launch ***************
@@ -145,13 +158,30 @@ void OS_Launch(uint32_t theTimeSlice){
   STCTRL = 0x00000007;         // enable, core clock and interrupt arm
   StartOS();                   // start on the first task
 }
-// runs every ms
-void Scheduler(void){      // every time slice
-// ****IMPLEMENT THIS****
-// look at all threads in TCB list choose
-// highest priority thread not blocked and not sleeping 
-// If there are multiple highest priority (not blocked, not sleeping) run these round robin
 
+//******** Scheduler *************** 
+// This function executes every time slice, it looks at all 
+//  threads in the TCB list and chooses the highest priority
+//  thread that is not blocked nor sleeping.
+void Scheduler(void){
+	 tcbType *pt, *bestpt;
+	 uint32_t max = 255;
+	
+	 pt = RunPt;
+ 	
+	do{
+			pt = pt -> next;
+		
+			if(((pt->BlockPt == 0) && (pt ->Sleep == 0)) && (pt->Priority < max))
+			{
+				max = pt -> Priority;
+				bestpt = pt;
+			}
+		
+	  }
+	while(RunPt != pt);
+		
+	RunPt = bestpt;	
   
 }
 
@@ -219,10 +249,9 @@ void OS_Kill(void){  // no local variables allowed
 // output: none
 // OS_Sleep(0) implements cooperative multitasking
 void OS_Sleep(uint32_t sleepTime){
-// ****IMPLEMENT THIS****
-// set sleep parameter in TCB, same as Lab 3
-// suspend, stops running
-  
+	RunPt->Sleep = sleepTime;
+	OS_Suspend();
+
 }
 
 // ******** OS_InitSemaphore ************
@@ -231,8 +260,8 @@ void OS_Sleep(uint32_t sleepTime){
 //          initial value of semaphore
 // Outputs: none
 void OS_InitSemaphore(int32_t *semaPt, int32_t value){
-// ****IMPLEMENT THIS****
-// Same as Lab 3
+	
+	*semaPt = value;
 }
 
 // ******** OS_Wait ************
@@ -242,8 +271,18 @@ void OS_InitSemaphore(int32_t *semaPt, int32_t value){
 // Inputs:  pointer to a counting semaphore
 // Outputs: none
 void OS_Wait(int32_t *semaPt){
-// ****IMPLEMENT THIS****
-// Same as Lab 3
+	
+	DisableInterrupts();
+	*semaPt = *semaPt - 1;
+	
+	if(*semaPt < 0)
+	{
+		RunPt->BlockPt = semaPt;
+		EnableInterrupts();
+		OS_Suspend();
+	}
+	
+	EnableInterrupts();
 
 }
 
@@ -254,8 +293,25 @@ void OS_Wait(int32_t *semaPt){
 // Inputs:  pointer to a counting semaphore
 // Outputs: none
 void OS_Signal(int32_t *semaPt){
-// ****IMPLEMENT THIS****
-// Same as Lab 3
+	
+	tcbType *pt;
+	DisableInterrupts();
+	
+	*semaPt = *semaPt + 1;
+	
+	if(*semaPt <= 0)
+	{
+		pt = RunPt ->next;
+		
+		while(pt->BlockPt != semaPt)
+		{
+			pt = pt ->next;
+		}
+		
+		pt ->BlockPt = 0;
+	}
+	
+	EnableInterrupts();
 
 }
 
@@ -266,48 +322,59 @@ uint32_t Fifo[FSIZE];
 int32_t CurrentSize;// 0 means FIFO empty, FSIZE means full
 uint32_t LostData;  // number of lost pieces of data
 
+
 // ******** OS_FIFO_Init ************
-// Initialize FIFO.  The "put" and "get" indices initially
-// are equal, which means that the FIFO is empty.  Also
-// initialize semaphores to track properties of the FIFO
-// such as size and busy status for Put and Get operations,
-// which is important if there are multiple data producers
-// or multiple data consumers.
+// Initialize FIFO.  
+// One event thread producer, one main thread consumer
 // Inputs:  none
 // Outputs: none
-void OS_FIFO_Init(void){
-// ****IMPLEMENT THIS****
-// Same as Lab 3
- 
+void OS_FIFO_Init(void){	
+	PutI = GetI = 0;
+	OS_InitSemaphore(&CurrentSize, 0);
+	LostData = 0;
 }
 
 // ******** OS_FIFO_Put ************
-// Put an entry in the FIFO.  Consider using a unique
-// semaphore to wait on busy status if more than one thread
-// is putting data into the FIFO and there is a chance that
-// this function may interrupt itself.
+// Put an entry in the FIFO.  
+// Exactly one event thread puts,
+// do not block or spin if full
 // Inputs:  data to be stored
 // Outputs: 0 if successful, -1 if the FIFO is full
 int OS_FIFO_Put(uint32_t data){
-// ****IMPLEMENT THIS****
-// Same as Lab 3
-  
- return 0; // success
+	
+	if(CurrentSize < FSIZE)
+	{
+		Fifo[PutI] = data;
+		PutI = (PutI + 1)%FSIZE;
+		OS_Signal(&CurrentSize);
+	}
+	else
+	{
+		LostData++;
+		return -1;
+	}
+
+  return 0;   // success
+
 }
 
 // ******** OS_FIFO_Get ************
-// Get an entry from the FIFO.  Consider using a unique
-// semaphore to wait on busy status if more than one thread
-// is getting data from the FIFO and there is a chance that
-// this function may interrupt itself.
+// Get an entry from the FIFO.   
+// Exactly one main thread get,
+// do block if empty
 // Inputs:  none
 // Outputs: data retrieved
-uint32_t OS_FIFO_Get(void){uint32_t data;
-// ****IMPLEMENT THIS****
-// Same as Lab 3
- return data;
-  
+uint32_t OS_FIFO_Get(void){
+	
+	uint32_t data;
+	
+	OS_Wait(&CurrentSize);
+	data = Fifo[GetI];
+	GetI = (GetI + 1)%FSIZE;
+
+  return data;
 }
+
 // *****periodic events****************
 int32_t *PeriodicSemaphore0;
 uint32_t Period0; // time between signals
@@ -382,6 +449,16 @@ void OS_EdgeTrigger_Init(int32_t *semaPt, uint8_t priority){
 // (f) arm interrupt on PD6
 // priority on Port D edge trigger is NVIC_PRI0_R	31 – 29
 // enable is bit 3 in NVIC_EN0_R
+		GPIO_PORTD_IM_R &= ~0x40;
+	  GPIO_PORTD_IS_R &= ~0X40;
+	  GPIO_PORTD_IBE_R &= ~0x40;
+	  GPIO_PORTD_IEV_R &= ~0x40;
+		GPIO_PORTD_ICR_R = 0x40;
+		GPIO_PORTD_IM_R |= 0x40;
+// priority on Port D edge trigger is NVIC_PRI0_R	31 – 29	
+		NVIC_PRI0_R  |= (priority << 29);
+// enable is bit 3 in NVIC_EN0_R
+	  NVIC_EN0_R |= 0x08;
 }
 
 // ******** OS_EdgeTrigger_Restart ************
@@ -390,15 +467,21 @@ void OS_EdgeTrigger_Init(int32_t *semaPt, uint8_t priority){
 // Inputs:  none
 // Outputs: none
 void OS_EdgeTrigger_Restart(void){
-//***IMPLEMENT THIS***
 // rearm interrupt 3 in NVIC
+	GPIO_PORTD_IM_R |= 0x40;
 // clear flag6
+	GPIO_PORTD_ICR_R = 0x40;
 }
 void GPIOPortD_Handler(void){
-//***IMPLEMENT THIS***
-	// step 1 acknowledge by clearing flag
-  // step 2 signal semaphore (no need to run scheduler)
-  // step 3 disarm interrupt to prevent bouncing to create multiple signals
+	if(GPIO_PORTD_RIS_R & 0x40)
+	{
+		// step 1 acknowledge by clearing flag
+		GPIO_PORTD_ICR_R = 0x40;
+    // step 2 signal semaphore (no need to run scheduler)
+	  OS_Signal(edgeSemaphore);
+    // step 3 disarm interrupt to prevent bouncing to create multiple signals
+	  GPIO_PORTD_IM_R &= ~0x40;
+	}
 }
 
 
