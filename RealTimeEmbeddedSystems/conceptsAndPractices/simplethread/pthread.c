@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <sched.h>
+#include <syslog.h>
 
-#define NUM_THREADS 12
+#define NUM_THREADS 1
 
 typedef struct
 {
@@ -17,17 +18,12 @@ pthread_t threads[NUM_THREADS];
 threadParams_t threadParams[NUM_THREADS];
 
 
-void *counterThread(void *threadp)
+void *helloThread(void *threadp)
 {
     int sum=0, i;
     threadParams_t *threadParams = (threadParams_t *)threadp;
 
-    for(i=1; i < (threadParams->threadIdx)+1; i++)
-        sum=sum+i;
- 
-    printf("Thread idx=%d, sum[0...%d]=%d\n", 
-           threadParams->threadIdx,
-           threadParams->threadIdx, sum);
+    syslog(LOG_CRIT,"[COURSE 1][ASSIGNMENT 1]: Hello World from Thread!"); 
 }
 
 
@@ -35,16 +31,17 @@ int main (int argc, char *argv[])
 {
    int rc;
    int i;
-   
-   sprintf( "uname -a\n");
-    
+
+   system("uname -a | logger");   
+   syslog(LOG_CRIT,"[COURSE 1][ASSIGNMENT 1]: Hello World from Main!");
+
    for(i=0; i < NUM_THREADS; i++)
    {
        threadParams[i].threadIdx=i;
 
        pthread_create(&threads[i],   // pointer to thread descriptor
                       (void *)0,     // use default attributes
-                      counterThread, // thread function entry point
+                      helloThread, // thread function entry point
                       (void *)&(threadParams[i]) // parameters to pass in
                      );
 
