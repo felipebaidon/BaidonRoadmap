@@ -4,8 +4,6 @@
 #include <sched.h>
 #include <syslog.h>
 
-#define NUM_THREADS 1
-
 typedef struct
 {
     int threadIdx;
@@ -14,8 +12,8 @@ typedef struct
 
 // POSIX thread declarations and scheduling attributes
 //
-pthread_t threads[NUM_THREADS];
-threadParams_t threadParams[NUM_THREADS];
+pthread_t singlethread;
+threadParams_t threadParams;
 
 
 void *helloThread(void *threadp)
@@ -29,26 +27,18 @@ void *helloThread(void *threadp)
 
 int main (int argc, char *argv[])
 {
-   int rc;
-   int i;
 
    system("uname -a | logger");   
    syslog(LOG_CRIT,"[COURSE 1][ASSIGNMENT 1]: Hello World from Main!");
 
-   for(i=0; i < NUM_THREADS; i++)
-   {
-       threadParams[i].threadIdx=i;
+   threadParams.threadIdx= 0;
 
-       pthread_create(&threads[i],   // pointer to thread descriptor
-                      (void *)0,     // use default attributes
-                      helloThread, // thread function entry point
-                      (void *)&(threadParams[i]) // parameters to pass in
+   pthread_create(&singlethread,   // pointer to thread descriptor
+                  (void *)0,     // use default attributes
+                   helloThread, // thread function entry point
+                   (void *)&(threadParams) // parameters to pass in
                      );
 
-   }
+   pthread_join(singlethread, NULL);
 
-   for(i=0;i<NUM_THREADS;i++)
-       pthread_join(threads[i], NULL);
-
-   printf("TEST COMPLETE\n");
 }
