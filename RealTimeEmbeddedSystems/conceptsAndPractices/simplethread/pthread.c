@@ -21,7 +21,7 @@ void *helloThread(void *threadp)
     int sum=0, i;
     threadParams_t *threadParams = (threadParams_t *)threadp;
 
-    syslog(LOG_CRIT,"[COURSE 1][ASSIGNMENT 1]: Hello World from Thread!"); 
+    syslog(LOG_CRIT,"[COURSE:1][ASSIGNMENT:1]: Hello World from Thread!"); 
 }
 
 
@@ -29,7 +29,7 @@ int main (int argc, char *argv[])
 {
 
    system("uname -a | logger");   
-   syslog(LOG_CRIT,"[COURSE 1][ASSIGNMENT 1]: Hello World from Main!");
+   syslog(LOG_CRIT,"[COURSE:1][ASSIGNMENT:1]: Hello World from Main!");
 
    threadParams.threadIdx= 0;
 
