@@ -15,36 +15,36 @@ typedef struct
 pthread_t threads[128];
 threadParams_t threadParams[128];
 
+
 // Unsafe global
 int gsum=0;
 
 void *incThread(void *threadp)
 {
-   int i = 0;
+    int i;
+    threadParams_t *threadParams = (threadParams_t *)threadp;
 
-   threadParams_t *threadParams = (threadParams_t *)threadp;
+    for(i=0; i< threadParams ->threadIdx + 1; i++)
+    {
+        gsum= gsum+ i;
+    }
 
-    for(i= 0; i < threadParams->threadIdx + 1; i++)
-        gsum= gsum + i;
-    
-    syslog(LOG_CRIT,"[COURSE:1][ASSIGNMENT:2]: Increment thread idx=%d, gsum=%d\n", threadParams->threadIdx, gsum);
+    syslog(LOG_CRIT, "[COURSE:1][ASSIGNMENT:2] Increment thread idx=%d, gsum=%d\n", threadParams->threadIdx, gsum);
     gsum = 0;
 }
 
 
 int main (int argc, char *argv[])
 {
-   int rc;
    int i=0;
-   
-   system("uname -a | logger");   
-   
-   for( i= 0; i< 128; i++)
+   system( "uname -a | logger");
+
+   for( i=0; i < 128 ; i++)
    {
    threadParams[i].threadIdx=i;
    pthread_create(&threads[i],   // pointer to thread descriptor
                   (void *)0,     // use default attributes
-                  incThread,
+                  incThread, // thread function entry point
                   (void *)&(threadParams[i]) // parameters to pass in
                  );
    }
@@ -52,5 +52,5 @@ int main (int argc, char *argv[])
    for(i=0; i<128; i++)
      pthread_join(threads[i], NULL);
 
-   printf("TEST COMPLETE\n");
+  
 }
