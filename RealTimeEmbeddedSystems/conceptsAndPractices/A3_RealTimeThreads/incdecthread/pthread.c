@@ -10,7 +10,7 @@
 
 #define SCHED_POLICY  SCHED_FIFO
 #define NUM_THREADS   128
-
+#define MAX_ITERATIONS 100000000
 
 typedef struct
 {
@@ -30,17 +30,20 @@ int gsum=0;
 
 void *incThread(void *threadp)
 {
-    int i;
+    int i, iterations;
     threadParams_t *threadParams = (threadParams_t *)threadp;
 
-    for(i=0; i<threadParams -> threadIdx ; i++)
-    {
-        gsum=gsum+i;
-    }
+   //Uncomment to add a delay for testing conveniences
+   // for(iterations = 0; iterations < MAX_ITERATIONS; iterations++)
+    //{
+        gsum= 0;
+        for(i=0; i<threadParams -> threadIdx ; i++)
+        {
+            gsum=gsum+i;
+        }
+    //}
     
-
     syslog(LOG_USER |LOG_DEBUG, "[COURSE:1][ASSIGNMENT:3]: Thread idx=%d, sum[1...%d]=%d Running on core: %d", threadParams->threadIdx, threadParams ->threadIdx, gsum, sched_getcpu());
-    gsum = 0;
 }
 
 void print_scheduler(void)
@@ -98,7 +101,6 @@ void set_scheduler(void)
 
 int main (int argc, char *argv[])
 {
-   int rc;
    int i=0;
    
    set_scheduler();
