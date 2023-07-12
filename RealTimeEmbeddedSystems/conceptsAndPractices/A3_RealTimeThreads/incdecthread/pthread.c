@@ -1,11 +1,16 @@
-#include <pthread.h>
+#define _GNU_SOURCE
 #include <stdlib.h>
 #include <stdio.h>
+
 #include <sched.h>
+#include <pthread.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #define COUNT  1000
 #define SCHED_POLICY  SCHED_FIFO
 #define NUM_THREADS   128
+
 
 typedef struct
 {
@@ -18,7 +23,7 @@ typedef struct
 pthread_t threads[128];
 threadParams_t threadParams[128];
 pthread_attr_t fifo_sched_attr;
-sched_param fifo_param;
+struct sched_param fifo_param;
 
 // Unsafe global
 int gsum=0;
@@ -56,7 +61,7 @@ void set_scheduler(void)
      cpu_set_t cpuset;
      int cpuidx, max_priority, rc;
 
-     printf("INITIAL ");print_scheduler();
+     printf("INITIAL ");
 
     //Set policy to SCHED_FIFO
     pthread_attr_init(&fifo_sched_attr);
@@ -71,13 +76,13 @@ void set_scheduler(void)
     pthread_attr_setaffinity_np(&fifo_sched_attr,  sizeof(cpu_set_t), &cpuset); 
     
     //set the RM priority to MAX
-   max_priority = sched_get_max_priority(SCHED_POLICY); 
+   max_priority = sched_get_priority_max(SCHED_POLICY); 
    if((rc= sched_setscheduler(getpid(), SCHED_POLICY, &fifo_param)) < 0)
        perror("sched_setscheduler");
 
     pthread_attr_setschedparam(&fifo_sched_attr, &fifo_param);
     
-    printf("ADJUSTED "); print_scheduler();  
+    printf("ADJUSTED ");  
 }
 
 
