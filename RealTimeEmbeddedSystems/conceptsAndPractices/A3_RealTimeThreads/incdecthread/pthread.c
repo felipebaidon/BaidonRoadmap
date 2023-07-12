@@ -72,7 +72,7 @@ void set_scheduler(void)
      cpu_set_t cpuset;
      int cpuidx, max_priority, rc;
 
-     syslog(LOG_USER|LOG_DEBUG,"INITIAL ");print_scheduler();
+    syslog(LOG_USER|LOG_DEBUG,"INITIAL ");print_scheduler();
 
     //Set policy to SCHED_FIFO
     pthread_attr_init(&fifo_sched_attr);
@@ -102,7 +102,12 @@ void set_scheduler(void)
 int main (int argc, char *argv[])
 {
    int i=0;
+   int rc;
    
+   rc=system("uname -a | logger"); 
+   if(rc < 0 || rc == 127) 
+      perror("system");
+ 
    set_scheduler();
 
    for( i = 0; i < NUM_THREADS ; i++)
