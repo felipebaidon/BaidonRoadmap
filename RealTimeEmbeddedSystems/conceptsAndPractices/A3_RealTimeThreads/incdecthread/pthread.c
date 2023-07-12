@@ -6,8 +6,8 @@
 #include <pthread.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <syslog.h>
 
-#define COUNT  1000
 #define SCHED_POLICY  SCHED_FIFO
 #define NUM_THREADS   128
 
@@ -33,25 +33,33 @@ void *incThread(void *threadp)
     int i;
     threadParams_t *threadParams = (threadParams_t *)threadp;
 
-    for(i=0; i<threadParams -> threadIdx + 1; i++)
+    for(i=0; i<threadParams -> threadIdx ; i++)
     {
         gsum=gsum+i;
     }
     
-    printf("Increment thread idx=%d, gsum=%d\n", threadParams->threadIdx, gsum);
+
+    syslog(LOG_USER |LOG_DEBUG, "[COURSE:1][ASSIGNMENT:3]: Thread idx=%d, sum[1...%d]=%d Running on core: %d", threadParams->threadIdx, threadParams ->threadIdx, gsum, sched_getcpu());
     gsum = 0;
 }
 
-
-void *decThread(void *threadp)
+void print_scheduler(void)
 {
-    int i;
-    threadParams_t *threadParams = (threadParams_t *)threadp;
-
-    for(i=0; i<COUNT; i++)
-    {
-        gsum=gsum-i;
-        printf("Decrement thread idx=%d, gsum=%d\n", threadParams->threadIdx, gsum);
+    int schedType = sched_getscheduler(getpid());
+   
+    switch(schedType)
+    { 
+        case SCHED_FIFO:
+            syslog(LOG_USER|LOG_DEBUG, "Sched policy is SCHED_FIFO");
+            break;
+        case SCHED_RR:
+            syslog(LOG_USER|LOG_DEBUG, "Sched policy is SCHED_RR");
+            break;
+        case SCHED_OTHER:
+            syslog(LOG_USER|LOG_DEBUG, "Sched policy is SCHED_OTHER");
+            break;
+        default:
+            syslog(LOG_USER|LOG_DEBUG, "Sched policy is UNKNOWN");
     }
 }
 
@@ -61,7 +69,7 @@ void set_scheduler(void)
      cpu_set_t cpuset;
      int cpuidx, max_priority, rc;
 
-     printf("INITIAL ");
+     syslog(LOG_USER|LOG_DEBUG,"INITIAL ");print_scheduler();
 
     //Set policy to SCHED_FIFO
     pthread_attr_init(&fifo_sched_attr);
@@ -77,12 +85,14 @@ void set_scheduler(void)
     
     //set the RM priority to MAX
    max_priority = sched_get_priority_max(SCHED_POLICY); 
+   fifo_param.sched_priority = max_priority;
+
    if((rc= sched_setscheduler(getpid(), SCHED_POLICY, &fifo_param)) < 0)
        perror("sched_setscheduler");
 
     pthread_attr_setschedparam(&fifo_sched_attr, &fifo_param);
     
-    printf("ADJUSTED ");  
+    syslog(LOG_USER|LOG_DEBUG, "ADJUSTED ");  print_scheduler();
 }
 
 
@@ -90,6 +100,8 @@ int main (int argc, char *argv[])
 {
    int rc;
    int i=0;
+   
+   set_scheduler();
 
    for( i = 0; i < NUM_THREADS ; i++)
    {
