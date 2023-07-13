@@ -7,11 +7,13 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <syslog.h>
+#include <string.h>
 
 #define SCHED_POLICY  SCHED_FIFO //Purpose of this assignment is to use SCHED_FIFO policy, we are using a macro definition for convenience 
 #define NUM_THREADS   128
 #define MAX_ITERATIONS 100000000
 
+char COURSE_ASSIGN[]= "[COURSE:1][ASSIGNMENT:3]:";
 typedef struct
 {
     int threadIdx;
@@ -31,20 +33,24 @@ int gsum=0;
 
 void *incThread(void *threadp)
 {
-    int i, iterations;
+    int i;
+    //int  iterations;
     threadParams_t *threadParams = (threadParams_t *)threadp;
 
    //Uncomment to add a delay for testing conveniences
-    for(iterations = 0; iterations < MAX_ITERATIONS; iterations++)
-    {
+   // for(iterations = 0; iterations < MAX_ITERATIONS; iterations++)
+   // {
         gsum= 0;
         for(i=0; i<threadParams -> threadIdx + 1 ; i++)
         {
             gsum=gsum+i;
         }
-    }
+    //}
     
-    syslog(LOG_USER |LOG_DEBUG, "[COURSE:1][ASSIGNMENT:3]: Thread idx=%d, sum[1...%d]=%d Running on core: %d", threadParams->threadIdx, threadParams ->threadIdx, gsum, sched_getcpu());
+
+    syslog(LOG_INFO," %s Thread idx=%d, sum[1...%d]=%d Running on core: %d", COURSE_ASSIGN, threadParams -> threadIdx, threadParams-> threadIdx, gsum, sched_getcpu()); 
+    
+    return NULL;
 }
 
 // This function is used for debug purposes, it helps to know
@@ -113,11 +119,15 @@ void set_scheduler(void)
 int main (int argc, char *argv[])
 {
    int i=0;
-   int rc;
+   FILE *data;
+   char unameData[150], *rc;
+
    
-   rc=system("uname -a | logger"); 
-   if(rc < 0 || rc == 127) 
-      perror("system");
+   data= popen("uname -a", "r");
+   if( (rc = fgets(unameData, sizeof(unameData), data)) == NULL)
+      perror("fgets"); 
+   syslog(LOG_INFO, "%s %s", COURSE_ASSIGN, unameData);
+   pclose(data);
  
    set_scheduler();
 
