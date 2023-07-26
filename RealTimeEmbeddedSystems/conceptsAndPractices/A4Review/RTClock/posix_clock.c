@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <errno.h>
+#include <syslog.h>
 
 #define NSEC_PER_SEC (1000000000)
 #define NSEC_PER_MSEC (1000000)
@@ -44,16 +45,16 @@ void print_scheduler(void)
    switch(schedType)
    {
      case SCHED_FIFO:
-           printf("Pthread Policy is SCHED_FIFO\n");
+           syslog(LOG_USER|LOG_DEBUG,"Pthread Policy is SCHED_FIFO");
            break;
      case SCHED_OTHER:
-           printf("Pthread Policy is SCHED_OTHER\n");
+           syslog(LOG_USER|LOG_DEBUG, "Pthread Policy is SCHED_OTHER");
        break;
      case SCHED_RR:
-           printf("Pthread Policy is SCHED_RR\n");
+           syslog(LOG_USER|LOG_DEBUG, "Pthread Policy is SCHED_RR");
            break;
      default:
-       printf("Pthread Policy is UNKNOWN\n");
+           syslog(LOG_USER|LOG_DEBUG,"Pthread Policy is UNKNOWN");
    }
 }
 
@@ -107,7 +108,7 @@ int delta_t(struct timespec *stop, struct timespec *start, struct timespec *delt
 
 	  else // dt_nsec < 0 means stop is earlier than start
 	  {
-	         printf("stop is earlier than start\n");
+	         syslog(LOG_USER|LOG_DEBUG, "stop is earlier than start");
 		 return(ERROR);  
 	  }
   }
@@ -148,8 +149,8 @@ static struct timespec rtclk_stop_time = {0, 0};
 static struct timespec delay_error = {0, 0};
 
 //#define MY_CLOCK CLOCK_REALTIME
-//#define MY_CLOCK CLOCK_MONOTONIC
-#define MY_CLOCK CLOCK_MONOTONIC_RAW
+#define MY_CLOCK CLOCK_MONOTONIC
+//#define MY_CLOCK CLOCK_MONOTONIC_RAW
 //#define MY_CLOCK CLOCK_REALTIME_COARSE
 //#define MY_CLOCK CLOCK_MONOTONIC_COARSE
 
@@ -174,13 +175,13 @@ void *delay_test(void *threadID)
   }
   else
   {
-      printf("\n\nPOSIX Clock demo using system RT clock with resolution:\n\t%ld secs, %ld microsecs, %ld nanosecs\n", rtclk_resolution.tv_sec, (rtclk_resolution.tv_nsec/1000), rtclk_resolution.tv_nsec);
+    syslog(LOG_USER|LOG_DEBUG, "POSIX Clock demo using system RT clock with resolution:%ld secs, %ld microsecs, %ld nanosecs", rtclk_resolution.tv_sec, (rtclk_resolution.tv_nsec/1000), rtclk_resolution.tv_nsec);
   }
 
   // run up to TEST_ITERATIONS times
   for(idx=0; idx < TEST_ITERATIONS; idx++)
   {
-      printf("test %d\n", idx);
+      syslog(LOG_USER|LOG_DEBUG,"test %d", idx);
 
       /* run test for defined seconds */
       sleep_time.tv_sec=TEST_SECONDS;
@@ -236,9 +237,10 @@ void end_delay_test(void)
 #endif
 
   real_dt=d_ftime(&rtclk_start_time, &rtclk_stop_time);
-  printf("MY_CLOCK clock DT seconds = %ld, msec=%ld, usec=%ld, nsec=%ld, sec=%6.9lf\n", 
+  syslog(LOG_USER | LOG_DEBUG, "MY_CLOCK clock DT seconds = %ld, msec=%ld, usec=%ld, nsec=%ld, sec=%6.9lf", 
          rtclk_dt.tv_sec, rtclk_dt.tv_nsec/1000000, rtclk_dt.tv_nsec/1000, rtclk_dt.tv_nsec, real_dt);
 
+  
 #if 0
   printf("Requested sleep seconds = %ld, nanoseconds = %ld\n", 
          sleep_requested.tv_sec, sleep_requested.tv_nsec);
@@ -246,7 +248,7 @@ void end_delay_test(void)
   printf("\n");
   printf("Sleep loop count = %ld\n", sleep_count);
 #endif
-  printf("MY_CLOCK delay error = %ld, nanoseconds = %ld\n", 
+  syslog(LOG_USER|LOG_DEBUG, "MY_CLOCK delay error = %ld, nanoseconds = %ld", 
          delay_error.tv_sec, delay_error.tv_nsec);
 }
 
@@ -256,10 +258,10 @@ void main(void)
 {
    int rc, scope;
 
-   printf("Before adjustments to scheduling policy:\n");
+   syslog(LOG_DEBUG|LOG_USER,"Before adjustments to scheduling policy");
    print_scheduler();
 
- RUN_RT_THREAD
+#ifdef RUN_RT_THREAD
    //initialize threads aatubutes
    pthread_attr_init(&main_sched_attr);
    //Set thread to explict scheduling 
@@ -278,11 +280,11 @@ void main(void)
 
    if (rc)
    {
-       printf("ERROR; sched_setscheduler rc is %d\n", rc);
+       syslog(LOG_USER|LOG_DEBUG,"ERROR; sched_setscheduler rc is %d", rc);
        perror("sched_setschduler"); exit(-1);
    }
 
-   printf("After adjustments to scheduling policy:\n");
+   syslog(LOG_USER|LOG_DEBUG,"After adjustments to scheduling policy:");
    print_scheduler();
 
    main_param.sched_priority = rt_max_prio;
@@ -294,7 +296,7 @@ void main(void)
 
    if (rc)
    {
-       printf("ERROR; pthread_create() rc is %d\n", rc);
+       syslog(LOG_USER|LOG_DEBUG,"ERROR; pthread_create() rc is %d", rc);
        perror("pthread_create");
        exit(-1);
    }
