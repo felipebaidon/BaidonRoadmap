@@ -6,7 +6,8 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sched.h>
-
+#include <unistd.h>
+#include <syslog.h>
 #define NUM_THREADS 64
 #define NUM_CPUS 8
 
@@ -38,16 +39,16 @@ void print_scheduler(void)
     switch(schedType)
     {
         case SCHED_FIFO:
-            printf("Pthread policy is SCHED_FIFO\n");
+            syslog(LOG_USER|LOG_DEBUG,"Pthread policy is SCHED_FIFO");
             break;
         case SCHED_OTHER:
-            printf("Pthread policy is SCHED_OTHER\n");
+            syslog(LOG_USER|LOG_DEBUG,"Pthread policy is SCHED_OTHER");
             break;
         case SCHED_RR:
-            printf("Pthread policy is SCHED_RR\n");
+            syslog(LOG_USER|LOG_DEBUG, "Pthread policy is SCHED_RR");
             break;
         default:
-            printf("Pthread policy is UNKNOWN\n");
+            syslog(LOG_USER|LOG_DEBUG,"Pthread policy is UNKNOWN");
     }
 }
 
@@ -57,13 +58,13 @@ void set_scheduler(void)
     int max_prio, scope, rc, cpuidx;
     cpu_set_t cpuset;
 
-    printf("INITIAL "); print_scheduler();
+    syslog(LOG_USER|LOG_DEBUG, "INITIAL "); print_scheduler();
 
     pthread_attr_init(&fifo_sched_attr);
     pthread_attr_setinheritsched(&fifo_sched_attr, PTHREAD_EXPLICIT_SCHED);
     pthread_attr_setschedpolicy(&fifo_sched_attr, SCHED_POLICY);
     CPU_ZERO(&cpuset);
-    cpuidx=(3);
+    cpuidx=(1);
     CPU_SET(cpuidx, &cpuset);
     pthread_attr_setaffinity_np(&fifo_sched_attr, sizeof(cpu_set_t), &cpuset);
 
@@ -75,7 +76,7 @@ void set_scheduler(void)
 
     pthread_attr_setschedparam(&fifo_sched_attr, &fifo_param);
 
-    printf("ADJUSTED "); print_scheduler();
+    syslog(LOG_USER|LOG_DEBUG,"ADJUSTED "); print_scheduler();
 }
 
 
@@ -104,7 +105,7 @@ void *counterThread(void *threadp)
     gettimeofday(&stopTime, 0);
     stop = ((stopTime.tv_sec * 1000000.0) + stopTime.tv_usec)/1000000.0;
 
-    printf("\nThread idx=%d, sum[0...%d]=%d, running on CPU=%d, start=%lf, stop=%lf", 
+    syslog(LOG_USER |LOG_DEBUG, "Thread idx=%d, sum[0...%d]=%d, running on CPU=%d, start=%lf, stop=%lf", 
            threadParams->threadIdx,
            threadParams->threadIdx, sum, sched_getcpu(),
            start, stop);
@@ -115,7 +116,7 @@ void *starterThread(void *threadp)
 {
    int i, rc;
 
-   printf("starter thread running on CPU=%d\n", sched_getcpu());
+   syslog(LOG_USER|LOG_DEBUG, "starter thread running on CPU=%d", sched_getcpu());
 
    for(i=0; i < NUM_THREADS; i++)
    {
@@ -154,13 +155,12 @@ int main (int argc, char *argv[])
        perror("pthread_getaffinity_np");
    else
    {
-       printf("main thread running on CPU=%d, CPUs =", sched_getcpu());
+       syslog( LOG_USER|LOG_DEBUG, "main thread running on CPU=%d, CPUs =", sched_getcpu());
 
        for (j = 0; j < CPU_SETSIZE; j++)
            if (CPU_ISSET(j, &cpuset))
-               printf(" %d", j);
+              syslog(LOG_USER|LOG_DEBUG, " %d", j);
 
-       printf("\n");
    }
 
    pthread_create(&startthread,   // pointer to thread descriptor
