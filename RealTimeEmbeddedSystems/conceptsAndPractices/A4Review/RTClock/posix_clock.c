@@ -149,15 +149,15 @@ static struct timespec rtclk_stop_time = {0, 0};
 static struct timespec delay_error = {0, 0};
 
 //#define MY_CLOCK CLOCK_REALTIME
-#define MY_CLOCK CLOCK_MONOTONIC
+//#define MY_CLOCK CLOCK_MONOTONIC
 //#define MY_CLOCK CLOCK_MONOTONIC_RAW
 //#define MY_CLOCK CLOCK_REALTIME_COARSE
-//#define MY_CLOCK CLOCK_MONOTONIC_COARSE
+#define MY_CLOCK CLOCK_MONOTONIC_COARSE
 
 #define TEST_ITERATIONS (100)
 
-// This function gets the start time before suspending the thread,
-// then gets the stop time after the suspention has elapsed
+/* This function gets the start time before suspending the thread,
+   then gets the stop time after the suspention has elapsed*/
 void *delay_test(void *threadID)
 {
   int idx, rc;
@@ -167,7 +167,7 @@ void *delay_test(void *threadID)
 
   sleep_count = 0;
 
-  //get clock resolution
+  /*Get clock resolution*/
   if(clock_getres(MY_CLOCK, &rtclk_resolution) == ERROR)
   {
       perror("clock_getres");
@@ -178,12 +178,12 @@ void *delay_test(void *threadID)
     syslog(LOG_USER|LOG_DEBUG, "POSIX Clock demo using system RT clock with resolution:%ld secs, %ld microsecs, %ld nanosecs", rtclk_resolution.tv_sec, (rtclk_resolution.tv_nsec/1000), rtclk_resolution.tv_nsec);
   }
 
-  // run up to TEST_ITERATIONS times
+  /* run up to TEST_ITERATIONS times */
   for(idx=0; idx < TEST_ITERATIONS; idx++)
   {
       syslog(LOG_USER|LOG_DEBUG,"test %d", idx);
 
-      /* run test for defined seconds */
+      /* run for 10ms  */
       sleep_time.tv_sec=TEST_SECONDS;
       sleep_time.tv_nsec=TEST_NANOSECONDS;
       sleep_requested.tv_sec=sleep_time.tv_sec;
@@ -192,32 +192,31 @@ void *delay_test(void *threadID)
       /* start time stamp */ 
       clock_gettime(MY_CLOCK, &rtclk_start_time);
 
-      /* request sleep time and repeat if time remains */
+      /* request 10ms sleep time and repeat if time remains */
       do 
       {
-	      //nanosleep function suspends the execution of the calling thread until the time
-	      //specified in the firs argument has paaed or the delivery of a signal 
-	      //that terminates the process
-	      //if the suspend time is interrumpted by a signal handler the function returns -1
-	      //and the remaining time is stored in the second argument
+	      /*nanosleep function suspends the execution of the calling thread until the time
+	      * specified in the firs argument has paaed or the delivery of a signal 
+	      * that terminates the process
+	      * if the suspend time is interrumpted by a signal handler the function returns -1
+	      * and the remaining time is stored in the second argument*/
           if(rc=nanosleep(&sleep_time, &remaining_time) == 0) break;
          
           sleep_time.tv_sec = remaining_time.tv_sec;
           sleep_time.tv_nsec = remaining_time.tv_nsec;
           sleep_count++;
       } 
-      //ensure time has elapsed and the sleep count has not been exceed
+      /*ensure time has elapsed and the sleep count has not been exceed*/
       while (((remaining_time.tv_sec > 0) || (remaining_time.tv_nsec > 0))
 		      && (sleep_count < max_sleep_calls));
 
-      //Get time after delay
+      /*Get time after delay*/
       clock_gettime(MY_CLOCK, &rtclk_stop_time);
 
 
-      //The call to this function pass the computer start time and stop time before and after
-      //the thread suspention and returns the difference in rtclk_dt
+      /* Compute the difference between stop time and start time*/
       delta_t(&rtclk_stop_time, &rtclk_start_time, &rtclk_dt);
-      //Then the sleep duration is requested against the sleep requested and the difference is returned
+      /* Compare the obtained sleep time against the requested sleep time */
       delta_t(&rtclk_dt, &sleep_requested, &delay_error);
 
       end_delay_test();
@@ -262,21 +261,20 @@ void main(void)
    print_scheduler();
 
 #ifdef RUN_RT_THREAD
-   //initialize threads aatubutes
+   /*initialize threads attributes to default: scope, stack size, inherit sched, priority, etc */ 
    pthread_attr_init(&main_sched_attr);
-   //Set thread to explict scheduling 
+   /*Set thread to explict scheduling */
    pthread_attr_setinheritsched(&main_sched_attr, PTHREAD_EXPLICIT_SCHED);
-   //Set schedulig policy to SCHED_FIFO
+   /*Set schedulig policy to SCHED_FIFO*/
    pthread_attr_setschedpolicy(&main_sched_attr, SCHED_FIFO);
 
+   /* Get max and min priority*/
    rt_max_prio = sched_get_priority_max(SCHED_FIFO);
    rt_min_prio = sched_get_priority_min(SCHED_FIFO);
 
-   //Set the priority and the scheduling mechanism by the thread indicated
-   //by the pid returned
+   /*Set the priority and the scheduling mechanism by the thread indicated by getpid*/
    main_param.sched_priority = rt_max_prio;
    rc=sched_setscheduler(getpid(), SCHED_FIFO, &main_param);
-
 
    if (rc)
    {
@@ -288,10 +286,11 @@ void main(void)
    print_scheduler();
 
    main_param.sched_priority = rt_max_prio;
-   //set parameters in main_sched_attr to the ones in main_param
+   /*Set parameters in main_sched_attr to the ones in main_param*/
    pthread_attr_setschedparam(&main_sched_attr, &main_param);
 
-   //create thread pass function delay_test, use parameters contained in main_sched_attr configured previously
+   /*Create thread pass function delay_test, use parameters 
+    * contained in main_sched_attr configured previously*/
    rc = pthread_create(&main_thread, &main_sched_attr, delay_test, (void *)0);
 
    if (rc)
@@ -301,11 +300,11 @@ void main(void)
        exit(-1);
    }
 
-   //wait for the thread to finish
+   /*Wait for the thread to finish*/
    pthread_join(main_thread, NULL);
 
-   //destroy the main_sched_attr object, it does not have any
-   //effects on the created thread
+   /*Destroy the main_sched_attr object, it does not have any
+    * effects on the created thread*/
    if(pthread_attr_destroy(&main_sched_attr) != 0)
      perror("attr destroy");
 #else

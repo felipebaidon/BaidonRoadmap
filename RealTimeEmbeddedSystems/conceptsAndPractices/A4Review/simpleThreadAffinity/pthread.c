@@ -52,7 +52,11 @@ void print_scheduler(void)
     }
 }
 
-
+/*
+ *  This function will change the scheduling mechanism from OTHER
+ *  to SCHED_FIFO. it will also set the priority among other thread's
+ *  parameters
+ */
 void set_scheduler(void)
 {
     int max_prio, scope, rc, cpuidx;
@@ -60,20 +64,27 @@ void set_scheduler(void)
 
     syslog(LOG_USER|LOG_DEBUG, "INITIAL "); print_scheduler();
 
+    /*initialize thread's attr such as detach state, scope, stack size, policy and priority */
     pthread_attr_init(&fifo_sched_attr);
+    /*thread will set its behavior from the attributes passed rather than inherit them from the main thread */
     pthread_attr_setinheritsched(&fifo_sched_attr, PTHREAD_EXPLICIT_SCHED);
+    /*Sched policy is SCHED_FIFO*/
     pthread_attr_setschedpolicy(&fifo_sched_attr, SCHED_POLICY);
     CPU_ZERO(&cpuset);
+    /*Assign thread to CPU 1*/
     cpuidx=(1);
     CPU_SET(cpuidx, &cpuset);
     pthread_attr_setaffinity_np(&fifo_sched_attr, sizeof(cpu_set_t), &cpuset);
 
+    /*get max priority*/
     max_prio=sched_get_priority_max(SCHED_POLICY);
     fifo_param.sched_priority=max_prio;    
-
+     /* Sets policy and parameters to SCHED_POLICY AND fifo_param of the calling process returned by getpid*/
     if((rc=sched_setscheduler(getpid(), SCHED_POLICY, &fifo_param)) < 0)
         perror("sched_setscheduler");
 
+    /* Sets the scheduling attributes of fifo_sched_attr to the
+     * ones in fifo_param */
     pthread_attr_setschedparam(&fifo_sched_attr, &fifo_param);
 
     syslog(LOG_USER|LOG_DEBUG,"ADJUSTED "); print_scheduler();
@@ -81,7 +92,11 @@ void set_scheduler(void)
 
 
 
-
+/* This function will be executed by each thread
+ * it will compute the sum up to a thread's id 
+ * MAX_ITERATIONS times and compute the elapsed time 
+ * in this computation
+ */
 void *counterThread(void *threadp)
 {
     int sum=0, i, rc, iterations;
@@ -112,6 +127,10 @@ void *counterThread(void *threadp)
 }
 
 
+/*
+ * This is the main thread, it will create and
+ * wait for the rest of the threads to finish
+ */
 void *starterThread(void *threadp)
 {
    int i, rc;
@@ -146,17 +165,19 @@ int main (int argc, char *argv[])
 
    CPU_ZERO(&cpuset);
 
-   // get affinity set for main thread
+   /* Returns the ID of the calling thread */
    mainthread = pthread_self();
 
-   // Check the affinity mask assigned to the thread 
+   /* Check the affinity mask assigned to the thread*/ 
    rc = pthread_getaffinity_np(mainthread, sizeof(cpu_set_t), &cpuset);
    if (rc != 0)
        perror("pthread_getaffinity_np");
    else
    {
+	   /* Print the CPU in which the main thread is running*/
        syslog( LOG_USER|LOG_DEBUG, "main thread running on CPU=%d, CPUs =", sched_getcpu());
 
+       /*Check if the possibles CPUs (1024)  are members of the cpuset, print the ones contained in cpuset*/
        for (j = 0; j < CPU_SETSIZE; j++)
            if (CPU_ISSET(j, &cpuset))
               syslog(LOG_USER|LOG_DEBUG, " %d", j);
