@@ -127,7 +127,7 @@
 #define TRUE (1)
 #define FALSE (0)
 
-#define NUM_THREADS (7)
+#define NUM_THREADS (3)
 
 // Of the available user space clocks, CLOCK_MONONTONIC_RAW is typically most precise and not subject to 
 // updates from external timer adjustments
@@ -258,10 +258,10 @@ void main(void)
     if (sem_init (&semS1, 0, 0)) { printf ("Failed to initialize S1 semaphore\n"); exit (-1); }
     if (sem_init (&semS2, 0, 0)) { printf ("Failed to initialize S2 semaphore\n"); exit (-1); }
     if (sem_init (&semS3, 0, 0)) { printf ("Failed to initialize S3 semaphore\n"); exit (-1); }
-    if (sem_init (&semS4, 0, 0)) { printf ("Failed to initialize S4 semaphore\n"); exit (-1); }
-    if (sem_init (&semS5, 0, 0)) { printf ("Failed to initialize S5 semaphore\n"); exit (-1); }
-    if (sem_init (&semS6, 0, 0)) { printf ("Failed to initialize S6 semaphore\n"); exit (-1); }
-    if (sem_init (&semS7, 0, 0)) { printf ("Failed to initialize S7 semaphore\n"); exit (-1); }
+   // if (sem_init (&semS4, 0, 0)) { printf ("Failed to initialize S4 semaphore\n"); exit (-1); }
+   // if (sem_init (&semS5, 0, 0)) { printf ("Failed to initialize S5 semaphore\n"); exit (-1); }
+   // if (sem_init (&semS6, 0, 0)) { printf ("Failed to initialize S6 semaphore\n"); exit (-1); }
+   // if (sem_init (&semS7, 0, 0)) { printf ("Failed to initialize S7 semaphore\n"); exit (-1); }
 
     mainpid=getpid();
 
@@ -290,22 +290,10 @@ void main(void)
 
     for(i=0; i < NUM_THREADS; i++)
     {
-
-      // run even indexed threads on core 2
-      if(i % 2 == 0)
-      {
-          CPU_ZERO(&threadcpu);
-          cpuidx=(2);
-          CPU_SET(cpuidx, &threadcpu);
-      }
-
-      // run odd indexed threads on core 3
-      else
-      {
-          CPU_ZERO(&threadcpu);
-          cpuidx=(3);
-          CPU_SET(cpuidx, &threadcpu);
-      }
+     /* The three tasks are running on CPU 0 */
+       CPU_ZERO(&threadcpu);
+       cpuidx=(0);
+       CPU_SET(cpuidx, &threadcpu);
 
       rc=pthread_attr_init(&rt_sched_attr[i]);
       rc=pthread_attr_setinheritsched(&rt_sched_attr[i], PTHREAD_EXPLICIT_SCHED);
@@ -363,7 +351,7 @@ void main(void)
 
     // Service_4 = RT_MAX-4	@ 5 Hz
     //
-    rt_param[3].sched_priority=rt_max_prio-4;
+    /*rt_param[3].sched_priority=rt_max_prio-4;
     pthread_attr_setschedparam(&rt_sched_attr[3], &rt_param[3]);
     rc=pthread_create(&threads[3], &rt_sched_attr[3], Service_4, (void *)&(threadParams[3]));
     if(rc < 0)
@@ -404,7 +392,7 @@ void main(void)
     else
         printf("pthread_create successful for service 7\n");
 
-
+     */
     // Wait for service threads to initialize and await relese by sequencer.
     //
     // Note that the sleep is not necessary of RT service threads are created with 
@@ -459,26 +447,26 @@ void Sequencer(int id)
 
     // received interval timer signal
            
-    seqCnt++;
 
     //clock_gettime(MY_CLOCK_TYPE, &current_time_val); current_realtime=realtime(&current_time_val);
     //printf("Sequencer on core %d for cycle %llu @ sec=%6.9lf\n", sched_getcpu(), seqCnt, current_realtime-start_realtime);
     //syslog(LOG_CRIT, "Sequencer on core %d for cycle %llu @ sec=%6.9lf\n", sched_getcpu(), seqCnt, current_realtime-start_realtime);
 
 
-    // Release each service at a sub-rate of the generic sequencer rate
 
-    // Servcie_1 = RT_MAX-1	@ 50 Hz
-    //if((seqCnt % 2) == 0) sem_post(&semS1);
+    // Servcie_1 = RT_MAX-1	@ .05 Hz
+    if((seqCnt % 2) == 0) 
+       sem_post(&semS1);
 
-    // Service_2 = RT_MAX-2	@ 20 Hz
-    //if((seqCnt % 5) == 0) sem_post(&semS2);
+    // Service_2 = RT_MAX-2	@ .01 Hz
+    if((seqCnt % 10) == 0) 
+       sem_post(&semS2);
 
-    // Service_3 = RT_MAX-3	@ 10 Hz
-    //if((seqCnt % 10) == 0) sem_post(&semS3);
-
-    // Service_4 = RT_MAX-4	@ 5 Hz
-    if((seqCnt % 20) == 0) sem_post(&semS4);
+    // Service_3 = RT_MAX-3	@.00667 Hz
+    if((seqCnt % 15) == 0)
+       sem_post(&semS3);
+    // Service_4 = RT_MAX-4	@ .00667 Hz
+    //if((seqCnt % 15) == 0) sem_post(&semS3);
 
     // Service_5 = RT_MAX-5	@ 2 Hz
     //if((seqCnt % 50) == 0) sem_post(&semS5);
@@ -487,7 +475,7 @@ void Sequencer(int id)
     //if((seqCnt % 100) == 0) sem_post(&semS6);
 
     // Service_7 = RT_MIN	1 Hz
-    if((seqCnt % 100) == 0) sem_post(&semS7);
+    //if((seqCnt % 100) == 0) sem_post(&semS7);
 
     
     if(abortTest || (seqCnt >= sequencePeriods))
@@ -502,13 +490,16 @@ void Sequencer(int id)
 
 	// shutdown all services
         sem_post(&semS1); sem_post(&semS2); sem_post(&semS3);
-        sem_post(&semS4); sem_post(&semS5); sem_post(&semS6);
-        sem_post(&semS7);
+      /*  sem_post(&semS4); sem_post(&semS5); sem_post(&semS6);
+        sem_post(&semS7);*/
 
         abortS1=TRUE; abortS2=TRUE; abortS3=TRUE;
-        abortS4=TRUE; abortS5=TRUE; abortS6=TRUE;
-        abortS7=TRUE;
+       /* abortS4=TRUE; abortS5=TRUE; abortS6=TRUE;
+        abortS7=TRUE;*/
     }
+    // Release each service at a sub-rate of the generic sequencer rate
+    seqCnt++;
+
 
 }
 
@@ -532,8 +523,6 @@ void *Service_1(void *threadp)
         sem_wait(&semS1);
 
         S1Cnt++;
-
-	// DO WORK
 
 	// on order of up to milliseconds of latency to get time
         clock_gettime(MY_CLOCK_TYPE, &current_time_val); current_realtime=realtime(&current_time_val);
