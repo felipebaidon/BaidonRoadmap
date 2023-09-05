@@ -205,7 +205,46 @@ static inline unsigned ccnt_read (void)
     return cc;
 }
 
+#define FIB_LIMIT_FOR_32_BIT 47
 
+unsigned int seqIterations = FIB_LIMIT_FOR_32_BIT;
+unsigned int idx = 0, jdx = 1;
+unsigned int fib = 0, fib0 = 0, fib1 = 1;
+char ciMarker[]="CI";
+
+
+#define FIB_TEST(seqCnt, iterCnt)      \
+   for(idx=0; idx < iterCnt; idx++)    \
+   {                                   \
+      fib = fib0 + fib1;               \
+      while(jdx < seqCnt)              \
+      {                                \
+         fib0 = fib1;                  \
+         fib1 = fib;                   \
+         fib = fib0 + fib1;            \
+         jdx++;                        \
+      }                                \
+   }                                   \
+
+
+/* Iterations, 2nd arg must be tuned for any given target type
+   using windview
+   
+   4000000 approx 10 msecs on Pentium at home
+   
+   Be very careful of WCET overloading CPU during first period of
+   LCM.
+   
+ */
+void fib10(void)
+{ 
+    FIB_TEST(seqIterations, 4000000);
+}
+
+void fib20(void)
+{
+    FIB_TEST(seqIterations, 8000000);
+}
 
 void main(void)
 {
@@ -234,6 +273,8 @@ void main(void)
     clock_getres(MY_CLOCK_TYPE, &current_time_res); current_realtime_res=realtime(&current_time_res);
     printf("START High Rate Sequencer @ sec=%6.9lf with resolution %6.9lf\n", (current_realtime - start_realtime), current_realtime_res);
     syslog(LOG_CRIT, "START High Rate Sequencer @ sec=%6.9lf with resolution %6.9lf\n", (current_realtime - start_realtime), current_realtime_res);
+   
+   syslog(LOG_DEBUG, " RUNNINNG WITH SYNTHETIC FIBONACCI LOAD! ");
 
    //timestamp = ccnt_read();
    //printf("timestamp=%u\n", timestamp);
@@ -437,8 +478,8 @@ void Sequencer(int id)
 
 void *Service_1(void *threadp)
 {
-    struct timespec current_time_val;
-    double current_realtime;
+    struct timespec current_time_val, current_time_val_startload, current_time_val_finishload;
+    double current_realtime, current_realtimestartload, current_realtimefinishload;
     unsigned long long S1Cnt=0;
     threadParams_t *threadParams = (threadParams_t *)threadp;
 
@@ -453,7 +494,12 @@ void *Service_1(void *threadp)
         sem_wait(&semS1);
 
         S1Cnt++;
-
+        clock_gettime(MY_CLOCK_TYPE, &current_time_val_startload); current_realtimestartload=realtime(&current_time_val_startload);
+        
+        fib10();
+        
+        clock_gettime(MY_CLOCK_TYPE, &current_time_val_finishload); current_realtimefinishload=realtime(&current_time_val_finishload);
+        syslog(LOG_CRIT, "Synthetic load took: @ sec=%6.9lf\n", current_realtimefinishload -current_realtimestartload);
 	// on order of up to milliseconds of latency to get time
         clock_gettime(MY_CLOCK_TYPE, &current_time_val); current_realtime=realtime(&current_time_val);
         syslog(LOG_CRIT, "S1 50 Hz on core %d for release %llu @ sec=%6.9lf\n", sched_getcpu(), S1Cnt, current_realtime-start_realtime);
@@ -467,8 +513,8 @@ void *Service_1(void *threadp)
 
 void *Service_2(void *threadp)
 {
-    struct timespec current_time_val;
-    double current_realtime;
+    struct timespec current_time_val, current_time_val_startload, current_time_val_finishload;
+    double current_realtime, current_realtimestartload, current_realtimefinishload;
     unsigned long long S2Cnt=0;
     threadParams_t *threadParams = (threadParams_t *)threadp;
 
@@ -479,8 +525,15 @@ void *Service_2(void *threadp)
     while(!abortS2)
     {
         sem_wait(&semS2);
-        S2Cnt++;
 
+        S2Cnt++;
+        clock_gettime(MY_CLOCK_TYPE, &current_time_val_startload); current_realtimestartload=realtime(&current_time_val_startload);
+        
+        fib10();
+        
+        clock_gettime(MY_CLOCK_TYPE, &current_time_val_finishload); current_realtimefinishload=realtime(&current_time_val_finishload);
+        syslog(LOG_CRIT, "Synthetic load for service 2 took: @ sec=%6.9lf\n", current_realtimefinishload -current_realtimestartload);
+	// on order of up to milliseconds of latency to get time
         clock_gettime(MY_CLOCK_TYPE, &current_time_val); current_realtime=realtime(&current_time_val);
         syslog(LOG_CRIT, "S2 20 Hz on core %d for release %llu @ sec=%6.9lf\n", sched_getcpu(), S2Cnt, current_realtime-start_realtime);
     }
@@ -491,8 +544,8 @@ void *Service_2(void *threadp)
 
 void *Service_3(void *threadp)
 {
-    struct timespec current_time_val;
-    double current_realtime;
+    struct timespec current_time_val, current_time_val_startload, current_time_val_finishload;
+    double current_realtime, current_realtimestartload, current_realtimefinishload;
     unsigned long long S3Cnt=0;
     threadParams_t *threadParams = (threadParams_t *)threadp;
 
@@ -504,7 +557,14 @@ void *Service_3(void *threadp)
     {
         sem_wait(&semS3);
         S3Cnt++;
+	
+        clock_gettime(MY_CLOCK_TYPE, &current_time_val_startload); current_realtimestartload=realtime(&current_time_val_startload);
+        
+        fib20();
+        
+        clock_gettime(MY_CLOCK_TYPE, &current_time_val_finishload); current_realtimefinishload=realtime(&current_time_val_finishload);
 
+        syslog(LOG_CRIT, "Synthetic load for service 3 took: @ sec=%6.9lf\n", current_realtimefinishload -current_realtimestartload);
         clock_gettime(MY_CLOCK_TYPE, &current_time_val); current_realtime=realtime(&current_time_val);
         syslog(LOG_CRIT, "S3 10 Hz on core %d for release %llu @ sec=%6.9lf\n", sched_getcpu(), S3Cnt, current_realtime-start_realtime);
     }
